@@ -5,17 +5,21 @@ export async function fetchAdminUsers() {
 }
 
 export async function fetchUserLibrary(userId) {
-  return await supabaseClient.from('library').select('game_id').eq('user_id', userId);
+  return await supabaseClient.from('library').select('game_id, source').eq('user_id', userId);
 }
 
 export async function updateUserStatus(id, status) {
   return await supabaseClient.from('profiles').update({ status }).eq('id', id);
 }
 
+export async function updateUserRole(id, role) {
+  return await supabaseClient.from('profiles').update({ role }).eq('id', id);
+}
+
 export async function adminAddLibrary(userId, gameId) {
   return await supabaseClient
     .from('library')
-    .upsert({ user_id: userId, game_id: gameId }, { onConflict: 'user_id,game_id', ignoreDuplicates: true });
+    .upsert({ user_id: userId, game_id: gameId, source: 'admin_grant' }, { onConflict: 'user_id,game_id', ignoreDuplicates: true });
 }
 
 export async function adminRemoveLibrary(userId, gameId) {
@@ -30,12 +34,24 @@ export async function addAdminLog(payload) {
 // CRUD DE JOGOS DO CATÁLOGO
 // ==========================
 
-export async function createGame(payload) {
-  return await supabaseClient.from('games').insert(payload).select().single();
+export async function createGame(payload, signal) {
+  let query = supabaseClient.rpc('admin_create_game', { game_payload: payload });
+  if (signal) query = query.abortSignal(signal);
+  return await query;
 }
 
-export async function updateGame(id, payload) {
-  return await supabaseClient.from('games').update(payload).eq('id', id).select().single();
+export async function findGameByTitle(title) {
+  return await supabaseClient
+    .from('games')
+    .select('*')
+    .eq('title', title)
+    .maybeSingle();
+}
+
+export async function updateGame(id, payload, signal) {
+  let query = supabaseClient.rpc('admin_update_game', { game_id: id, game_payload: payload });
+  if (signal) query = query.abortSignal(signal);
+  return await query;
 }
 
 export async function deleteGameRelations(gameId) {

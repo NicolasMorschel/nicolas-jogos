@@ -123,7 +123,7 @@ export function renderGameModal() {
   $('modalFavoriteBtn').textContent = adminMode ? 'Somente pelo painel admin' : (state.favoriteIds.includes(g.id) ? 'Remover favorito' : 'Favoritar');
   $('modalAddCart').textContent = adminMode ? 'Ir para o Admin' : 'Adicionar ao carrinho';
   $('modalFavoriteBtn').disabled = adminMode;
-  $('modalAddCart').disabled = adminMode;
+  $('modalAddCart').disabled = false;
   $('modalFavoriteBtn').classList.toggle('disabled-btn', adminMode);
-  $('modalAddCart').classList.toggle('disabled-btn', adminMode);
+  $('modalAddCart').classList.remove('disabled-btn');
 }

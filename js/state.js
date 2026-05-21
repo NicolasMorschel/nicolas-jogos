@@ -16,8 +16,10 @@ export const state = {
   quickFilter: 'all',
   selectedGameId: null,
   selectedAdminUserId: null,
+  adminTab: 'users',
   adminUsers: [],
   currentAdminUserLibraryIds: [],
+  currentAdminUserLibraryItems: [],
   adminSearchTerm: '',
   adminTypeFilter: 'all',
   adminStatusFilter: 'all',
@@ -33,6 +35,8 @@ export function resetUserState() {
   state.favoriteIds = [];
   state.libraryIds = [];
   state.savedCards = [];
+  state.currentAdminUserLibraryIds = [];
+  state.currentAdminUserLibraryItems = [];
   state.selectedSavedCardId = null;
   state.paymentMethod = 'pix';
 }

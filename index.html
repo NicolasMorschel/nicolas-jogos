@@ -108,12 +108,7 @@
               <button class="filter-link" data-genre-quick="survival-horror">Survival horror</button>
               <button class="filter-link" data-genre-quick="fps">FPS</button>
               <button class="filter-link" data-genre-quick="esporte">Esporte</button>
-            </div>
-            <div class="side-panel creds-box">
-              <h4>Configuração</h4>
-              <p>1. Roda o <strong>supabase-setup.sql</strong> no SQL Editor.</p>
-              <p>2. Usa esse <strong>index.html</strong>, <strong>style.css</strong> e <strong>script.js</strong>.</p>
-              <p>3. Cria uma conta e depois muda <strong>profiles.role</strong> para <strong>admin</strong> se quiser testar o painel.</p>
+              <button class="filter-link" data-genre-quick="rpg">RPG</button>
             </div>
           </aside>
 
@@ -131,6 +126,7 @@
                   <option value="survival-horror">Survival horror</option>
                   <option value="fps">FPS</option>
                   <option value="esporte">Esporte</option>
+                  <option value="rpg">RPG</option>
                 </select>
                 <select id="sortFilter">
                   <option value="popular">Mais populares</option>
@@ -269,7 +265,14 @@
 
         <div class="admin-kpis" id="adminKpis"></div>
 
-        <div class="admin-main-grid">
+        <div class="admin-tabs">
+          <button class="admin-tab-btn active" data-admin-tab="users">Usuários</button>
+          <button class="admin-tab-btn" data-admin-tab="library">Biblioteca</button>
+          <button class="admin-tab-btn" data-admin-tab="catalog">Catálogo</button>
+          <button class="admin-tab-btn" data-admin-tab="home">Home</button>
+        </div>
+
+        <div class="admin-tab-panel active" data-admin-panel="users">
           <section class="page-panel admin-card">
             <div class="admin-card-head">
               <div>
@@ -302,7 +305,9 @@
               <div class="admin-users-table" id="adminUsersList"></div>
             </div>
           </section>
+        </div>
 
+        <div class="admin-tab-panel" data-admin-panel="library">
           <section class="page-panel admin-card">
             <div class="admin-card-head">
               <div>
@@ -319,8 +324,8 @@
           </section>
         </div>
 
-        <!-- NOVA ÁREA DE CRUD DE JOGOS -->
-        <div class="admin-bottom-grid">
+        <div class="admin-tab-panel" data-admin-panel="catalog">
+          <div class="admin-bottom-grid">
           <section class="page-panel admin-card">
             <div class="admin-card-head">
               <div>
@@ -340,6 +345,7 @@
                 <option value="survival-horror">Survival horror</option>
                 <option value="fps">FPS</option>
                 <option value="esporte">Esporte</option>
+                <option value="rpg">RPG</option>
               </select>
 
               <div class="double-input">
@@ -359,7 +365,7 @@
               <textarea class="input textarea" id="adminGameDescription" placeholder="Descrição do jogo"></textarea>
 
               <div class="stack-actions">
-                <button class="primary-btn" id="adminGameSubmitBtn" type="submit">Adicionar jogo</button>
+                <button class="primary-btn" id="adminGameSubmitBtn" type="button">Adicionar jogo</button>
                 <button class="ghost-btn hidden" id="adminCancelEditBtn" type="button">Cancelar edição</button>
               </div>
             </form>
@@ -375,9 +381,11 @@
             </div>
             <div class="admin-library-list" id="adminCatalogGamesList"></div>
           </section>
+          </div>
         </div>
 
-        <div class="admin-bottom-grid">
+        <div class="admin-tab-panel" data-admin-panel="home">
+          <div class="admin-bottom-grid">
           <section class="page-panel admin-card">
             <div class="admin-card-head">
               <div>
@@ -406,6 +414,7 @@
               <button class="primary-btn" id="savePromoBtn">Salvar oferta</button>
             </div>
           </section>
+          </div>
         </div>
       </div>
     </section>

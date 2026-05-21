@@ -31,6 +31,7 @@ export async function removeFromCart(id) {
 }
 
 export async function clearCart() {
+  if (!isLoggedIn()) return showToast('Faz login antes de limpar o carrinho.');
   const { error } = await userDataModel.clearCart(state.session.user.id);
   if (error) return showToast(error.message);
   await refreshAll();

@@ -1,4 +1,4 @@
-import { state, resetUserState } from './state.js';
+import { state } from './state.js';
 import { $, showToast, openModal, closeModal, hidePurchaseSuccess } from './utils.js';
 import * as authModel from './models/authModel.js';
 import * as storeModel from './models/storeModel.js';
@@ -8,7 +8,7 @@ import { renderHero, renderFranchises, renderGames, goHero, updateHeroPosition }
 import { renderCartPage } from './views/cartView.js';
 import { renderLibrary } from './views/libraryView.js';
 import { renderCheckout, updatePaymentUI } from './views/checkoutView.js';
-import { renderAdmin } from './views/adminView.js';
+import { renderAdmin, setAdminTab } from './views/adminView.js';
 import * as authController from './controllers/authController.js';
 import * as storeController from './controllers/storeController.js';
 import * as checkoutController from './controllers/checkoutController.js';
@@ -59,6 +59,7 @@ export async function refreshAll() {
   } else {
     state.adminUsers = [];
     state.currentAdminUserLibraryIds = [];
+    state.currentAdminUserLibraryItems = [];
   }
 
   renderAll();
@@ -158,6 +159,11 @@ function bindEvents() {
   $('adminAddGameBtn').addEventListener('click', adminController.adminAddGame);
   $('saveCarouselBtn').addEventListener('click', adminController.saveCarousel);
   $('savePromoBtn').addEventListener('click', adminController.savePromo);
+  $('adminGameSubmitBtn').addEventListener('click', adminController.submitAdminGameForm);
+  $('adminCancelEditBtn').addEventListener('click', adminController.resetAdminGameForm);
+  document.querySelectorAll('[data-admin-tab]').forEach(btn => {
+    btn.addEventListener('click', () => setAdminTab(btn.dataset.adminTab));
+  });
 
   document.querySelectorAll('.payment-method').forEach(btn => btn.addEventListener('click', () => {
     state.paymentMethod = btn.dataset.payment;
@@ -182,7 +188,13 @@ window.App = {
   showToast,
   selectAdminUser: adminController.selectAdminUser,
   toggleUserStatus: adminController.toggleUserStatus,
-  adminRemoveGame: adminController.adminRemoveGame
+  toggleUserRole: adminController.toggleUserRole,
+  adminRemoveGame: adminController.adminRemoveGame,
+  startEditGame: adminController.startEditGame,
+  deleteCatalogGame: adminController.deleteCatalogGame,
+  retryPendingGame: adminController.retryPendingGame,
+  discardPendingGame: adminController.discardPendingGame,
+  setAdminTab
 };
 
 async function bootstrap() {
@@ -197,7 +209,6 @@ async function bootstrap() {
       await refreshAll(); 
     });
 
-    // 👇 ESSA LINHA RESOLVE TEU PROBLEMA
     document.getElementById('appLoader')?.classList.add('hidden');
 
   } catch (err) {

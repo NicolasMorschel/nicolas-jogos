@@ -15,22 +15,51 @@ function renderAdminCatalogList() {
   const wrap = $('adminCatalogGamesList');
   if (!wrap) return;
 
-  wrap.innerHTML = state.games.map(game => `
-    <div class="admin-lib-item">
-      <div>
-        <strong>${game.title}</strong>
-        <div class="admin-user-meta">
-          ${game.franchise} • ${String(game.genre || '').replace('-', ' ')} •
-          R$ ${Number(game.price || 0).toFixed(2)} •
-          ${game.featured ? 'Destaque' : 'Normal'}
+  wrap.innerHTML = state.games.map(game => {
+    const pending = !!game.pendingSync || Number(game.id) < 0;
+    const syncLabel = game.syncError
+      ? `Erro: ${game.syncMessage || 'não foi salvo'}`
+      : (game.syncMessage || 'Sincronizando...');
+
+    return `
+      <div class="admin-lib-item">
+        <div>
+          <strong>${game.title}</strong>
+          <div class="admin-user-meta">
+            ${game.franchise} • ${String(game.genre || '').replace('-', ' ')} •
+            R$ ${Number(game.price || 0).toFixed(2)} •
+            ${game.featured ? 'Destaque' : 'Normal'}
+            ${pending ? ` • ${syncLabel}` : ''}
+          </div>
+        </div>
+        <div class="stack-actions">
+          ${game.syncError
+            ? `
+              <button class="ghost-btn" onclick="window.App.retryPendingGame(${game.id})">Tentar de novo</button>
+              <button class="ghost-btn" onclick="window.App.discardPendingGame(${game.id})">Descartar</button>
+            `
+            : `
+              <button class="ghost-btn" ${pending ? 'disabled' : `onclick="window.App.startEditGame(${game.id})"`}>Editar</button>
+              <button class="ghost-btn" ${pending ? 'disabled' : `onclick="window.App.deleteCatalogGame(${game.id})"`}>Remover</button>
+            `}
         </div>
       </div>
-      <div class="stack-actions">
-        <button class="ghost-btn" onclick="window.App.startEditGame(${game.id})">Editar</button>
-        <button class="ghost-btn" onclick="window.App.deleteCatalogGame(${game.id})">Remover</button>
-      </div>
-    </div>
-  `).join('') || '<div class="admin-lib-item">Nenhum jogo cadastrado no catálogo.</div>';
+    `;
+  }).join('') || '<div class="admin-lib-item">Nenhum jogo cadastrado no catálogo.</div>';
+}
+
+export function setAdminTab(tab) {
+  state.adminTab = tab;
+  renderAdminTabs();
+}
+
+export function renderAdminTabs() {
+  document.querySelectorAll('[data-admin-tab]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.adminTab === state.adminTab);
+  });
+  document.querySelectorAll('[data-admin-panel]').forEach(panel => {
+    panel.classList.toggle('active', panel.dataset.adminPanel === state.adminTab);
+  });
 }
 
 export function renderAdmin() {
@@ -48,17 +77,19 @@ export function renderAdmin() {
         <strong>${u.name || 'Sem nome'}</strong>
         <div class="admin-user-meta">${u.email}</div>
       </div>
-      <div><span class="admin-role-badge user">${u.role === 'admin' ? 'Admin' : 'Usuário'}</span></div>
+      <div><span class="admin-role-badge ${u.role === 'admin' ? 'admin' : 'user'}">${u.role === 'admin' ? 'Admin' : 'Usuário'}</span></div>
       <div><strong>${u.library_count || 0}</strong><div class="admin-user-meta">na conta</div></div>
-      <div><span class="admin-status-badge active">${u.status === 'blocked' ? 'Bloqueado' : 'Ativo'}</span></div>
+      <div><span class="admin-status-badge ${u.status === 'blocked' ? 'blocked' : 'active'}">${u.status === 'blocked' ? 'Bloqueado' : 'Ativo'}</span></div>
       <div class="admin-actions">
-        <span class="ghost-btn">Selecionar</span>
-        <span class="primary-btn">Gerenciar</span>
+        <span class="primary-btn">Abrir biblioteca</span>
       </div>
     </button>
   `).join('') || '<div class="page-panel">Nenhum usuário encontrado.</div>';
 
-  const options = state.games.map(g => `<option value="${g.id}">${g.title}</option>`).join('');
+  const options = state.games
+    .filter(g => !g.pendingSync && Number(g.id) > 0)
+    .map(g => `<option value="${g.id}">${g.title}</option>`)
+    .join('');
   $('adminAddGameSelect').innerHTML = `<option value="">Seleciona um jogo</option>${options}`;
   $('carouselSelect1').innerHTML = options;
   $('carouselSelect2').innerHTML = options;
@@ -73,6 +104,7 @@ export function renderAdmin() {
 
   renderAdminUserDetails();
   renderAdminCatalogList();
+  renderAdminTabs();
 }
 
 export function renderAdminUserDetails() {
@@ -100,22 +132,27 @@ export function renderAdminUserDetails() {
     <div class="selected-user-actions">
       ${user.role === 'user'
         ? `<button class="ghost-btn" onclick="window.App.toggleUserStatus('${user.id}','${user.status}')">${user.status === 'blocked' ? 'Reativar conta' : 'Bloquear conta'}</button>`
-        : `<span class="admin-user-meta">Conta administrativa protegida.</span>`}
+        : `<span class="admin-user-meta">Conta administrativa protegida contra bloqueio.</span>`}
+      ${user.id === state.session?.user?.id
+        ? '<span class="admin-user-meta">Você não pode alterar o próprio tipo de conta.</span>'
+        : `<button class="primary-btn" onclick="window.App.toggleUserRole('${user.id}','${user.role}')">${user.role === 'admin' ? 'Rebaixar para usuário' : 'Promover para admin'}</button>`}
     </div>`;
 
-  const validLibraryGames = state.currentAdminUserLibraryIds
-    .map(id => getGame(id))
-    .filter(Boolean);
+  const validLibraryGames = state.currentAdminUserLibraryItems
+    .map(item => ({ item, game: getGame(item.game_id) }))
+    .filter(row => row.game);
 
   $('adminLibraryList').innerHTML = !validLibraryGames.length
     ? '<div class="admin-lib-item">Nenhum jogo nessa conta.</div>'
-    : validLibraryGames.map(g => `
+    : validLibraryGames.map(({ item, game: g }) => `
         <div class="admin-lib-item">
           <div>
             <strong>${g.title}</strong>
-            <div class="admin-user-meta">${g.franchise}</div>
+            <div class="admin-user-meta">${g.franchise} • ${item.source === 'admin_grant' ? 'Adicionado por admin' : 'Comprado'}</div>
           </div>
-          <button class="ghost-btn" onclick="window.App.adminRemoveGame(${g.id})">Remover</button>
+          ${item.source === 'admin_grant'
+            ? `<button class="ghost-btn" onclick="window.App.adminRemoveGame(${g.id})">Remover</button>`
+            : '<span class="admin-user-meta">Não removível</span>'}
         </div>
       `).join('');
 }

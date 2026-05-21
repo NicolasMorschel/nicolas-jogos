@@ -38,7 +38,7 @@ export async function finishPurchase() {
     return showToast(purchaseError.message);
   }
 
-  const rows = state.cartIds.map(game_id => ({ user_id: state.session.user.id, game_id }));
+  const rows = state.cartIds.map(game_id => ({ user_id: state.session.user.id, game_id, source: 'purchase' }));
   const { error: libError } = await userDataModel.upsertLibrary(rows);
   if (libError) {
     hideLoader();
