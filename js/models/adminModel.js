@@ -35,21 +35,13 @@ export async function addAdminLog(payload) {
 // ==========================
 
 export async function createGame(payload, signal) {
-  let query = supabaseClient.rpc('admin_create_game', { game_payload: payload });
+  let query = supabaseClient.from('games').insert(payload).select().single();
   if (signal) query = query.abortSignal(signal);
   return await query;
 }
 
-export async function findGameByTitle(title) {
-  return await supabaseClient
-    .from('games')
-    .select('*')
-    .eq('title', title)
-    .maybeSingle();
-}
-
 export async function updateGame(id, payload, signal) {
-  let query = supabaseClient.rpc('admin_update_game', { game_id: id, game_payload: payload });
+  let query = supabaseClient.from('games').update(payload).eq('id', id).select().single();
   if (signal) query = query.abortSignal(signal);
   return await query;
 }

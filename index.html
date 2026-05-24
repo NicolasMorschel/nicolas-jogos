@@ -350,11 +350,18 @@
 
               <div class="double-input">
                 <input class="input" id="adminGamePrice" type="number" step="0.01" placeholder="Preço atual" />
-                <input class="input" id="adminGameOldPrice" type="number" step="0.01" placeholder="Preço antigo" />
+                <input class="input" id="adminGameOldPrice" type="number" step="0.01" placeholder="Preço antigo" disabled />
               </div>
 
               <div class="double-input">
-                <input class="input" id="adminGameDiscount" type="number" min="0" placeholder="Desconto (%)" />
+                <input class="input" id="adminGameDiscount" type="number" min="0" max="100" step="1" placeholder="Desconto (%)" disabled />
+                <label class="save-card-label">
+                  <input type="checkbox" id="adminGameHasDiscount" />
+                  Aplicar desconto
+                </label>
+              </div>
+
+              <div>
                 <label class="save-card-label">
                   <input type="checkbox" id="adminGameFeatured" />
                   Marcar como destaque

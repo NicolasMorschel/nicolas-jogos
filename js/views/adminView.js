@@ -1,6 +1,9 @@
 import { state } from '../state.js';
 import { $, getGame } from '../utils.js';
 
+const ADMIN_TAB_STORAGE_KEY = 'nicolasJogos.adminTab';
+const VALID_ADMIN_TABS = new Set(['users', 'library', 'catalog', 'home']);
+
 export function filteredAdminUsers() {
   return state.adminUsers.filter(u => {
     const term = state.adminSearchTerm.toLowerCase().trim();
@@ -15,42 +18,42 @@ function renderAdminCatalogList() {
   const wrap = $('adminCatalogGamesList');
   if (!wrap) return;
 
-  wrap.innerHTML = state.games.map(game => {
-    const pending = !!game.pendingSync || Number(game.id) < 0;
-    const syncLabel = game.syncError
-      ? `Erro: ${game.syncMessage || 'não foi salvo'}`
-      : (game.syncMessage || 'Sincronizando...');
-
-    return `
-      <div class="admin-lib-item">
-        <div>
-          <strong>${game.title}</strong>
-          <div class="admin-user-meta">
-            ${game.franchise} • ${String(game.genre || '').replace('-', ' ')} •
-            R$ ${Number(game.price || 0).toFixed(2)} •
-            ${game.featured ? 'Destaque' : 'Normal'}
-            ${pending ? ` • ${syncLabel}` : ''}
-          </div>
-        </div>
-        <div class="stack-actions">
-          ${game.syncError
-            ? `
-              <button class="ghost-btn" onclick="window.App.retryPendingGame(${game.id})">Tentar de novo</button>
-              <button class="ghost-btn" onclick="window.App.discardPendingGame(${game.id})">Descartar</button>
-            `
-            : `
-              <button class="ghost-btn" ${pending ? 'disabled' : `onclick="window.App.startEditGame(${game.id})"`}>Editar</button>
-              <button class="ghost-btn" ${pending ? 'disabled' : `onclick="window.App.deleteCatalogGame(${game.id})"`}>Remover</button>
-            `}
+  wrap.innerHTML = state.games.map(game => `
+    <div class="admin-lib-item">
+      <div>
+        <strong>${game.title}</strong>
+        <div class="admin-user-meta">
+          ${game.franchise} • ${String(game.genre || '').replace('-', ' ')} •
+          R$ ${Number(game.price || 0).toFixed(2)} •
+          ${game.featured ? 'Destaque' : 'Normal'}
         </div>
       </div>
-    `;
-  }).join('') || '<div class="admin-lib-item">Nenhum jogo cadastrado no catálogo.</div>';
+      <div class="stack-actions">
+        <button class="ghost-btn" onclick="window.App.startEditGame(${game.id})">Editar</button>
+        <button class="ghost-btn" onclick="window.App.deleteCatalogGame(${game.id})">Remover</button>
+      </div>
+    </div>
+  `).join('') || '<div class="admin-lib-item">Nenhum jogo cadastrado no catálogo.</div>';
 }
 
 export function setAdminTab(tab) {
+  if (!VALID_ADMIN_TABS.has(tab)) return;
   state.adminTab = tab;
+  try {
+    localStorage.setItem(ADMIN_TAB_STORAGE_KEY, tab);
+  } catch (err) {
+    console.warn('Nao foi possivel salvar a aba admin.', err);
+  }
   renderAdminTabs();
+}
+
+export function restoreAdminTab() {
+  try {
+    const savedTab = localStorage.getItem(ADMIN_TAB_STORAGE_KEY);
+    if (VALID_ADMIN_TABS.has(savedTab)) state.adminTab = savedTab;
+  } catch (err) {
+    console.warn('Nao foi possivel ler a aba admin salva.', err);
+  }
 }
 
 export function renderAdminTabs() {
@@ -87,7 +90,7 @@ export function renderAdmin() {
   `).join('') || '<div class="page-panel">Nenhum usuário encontrado.</div>';
 
   const options = state.games
-    .filter(g => !g.pendingSync && Number(g.id) > 0)
+    .filter(g => Number(g.id) > 0)
     .map(g => `<option value="${g.id}">${g.title}</option>`)
     .join('');
   $('adminAddGameSelect').innerHTML = `<option value="">Seleciona um jogo</option>${options}`;

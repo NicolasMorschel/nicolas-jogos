@@ -35,11 +35,11 @@ export async function logout() {
     state.isLoggingOut = true;
     showLoader('Encerrando sessão...', 0);
 
-    const timeout = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Timeout no logout')), 4000)
+    const timeout = new Promise(resolve =>
+      setTimeout(() => resolve({ timedOut: true }), 5000)
     );
 
-    const signOutPromise = authModel.signOut();
+    const signOutPromise = authModel.signOut().catch(error => ({ error }));
     const result = await Promise.race([signOutPromise, timeout]);
 
     if (result?.error) {

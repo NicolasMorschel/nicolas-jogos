@@ -8,71 +8,16 @@ import { switchView } from '../views/commonView.js';
 
 let editingGameId = null;
 let savingGame = false;
+let syncingDiscountFields = false;
 
-function makeTimeoutSignal(ms = 45000) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), ms);
-  return { signal: controller.signal, clear: () => clearTimeout(timer) };
-}
+function adminErrorMessage(error, fallback = 'Erro na operação.') {
+  const message = error?.message || fallback;
 
-function patchPendingGame(tempId, patch) {
-  state.games = state.games.map(game => (
-    Number(game.id) === Number(tempId) ? { ...game, ...patch } : game
-  ));
-  renderAdmin();
-}
-
-function replacePendingGame(tempId, savedGame) {
-  state.games = state.games
-    .map(game => Number(game.id) === Number(tempId) ? savedGame : game)
-    .sort((a, b) => Number(a.id) - Number(b.id));
-  renderAdmin();
-}
-
-async function reconcilePendingGame(tempId, payload) {
-  const { data, error } = await adminModel.findGameByTitle(payload.title);
-  if (!error && data) {
-    replacePendingGame(tempId, data);
-    showToast('Jogo confirmado no banco.');
-    return true;
+  if (error?.code === '23505' || message.includes('games_title_unique_idx')) {
+    return 'Já existe um jogo com esse título.';
   }
 
-  return false;
-}
-
-async function persistCreatedGame(tempId, payload) {
-  const slowTimer = setTimeout(() => {
-    patchPendingGame(tempId, { syncMessage: 'Demorando para confirmar...' });
-  }, 8000);
-  const timeout = makeTimeoutSignal();
-
-  try {
-    const { data, error } = await adminModel.createGame(payload, timeout.signal);
-    if (error) throw error;
-
-    if (data) {
-      replacePendingGame(tempId, data);
-      showToast('Jogo salvo no banco.');
-    }
-  } catch (err) {
-    const reconciled = err?.name === 'AbortError'
-      ? await reconcilePendingGame(tempId, payload)
-      : false;
-
-    if (!reconciled) {
-      patchPendingGame(tempId, {
-        pendingSync: false,
-        syncError: true,
-        syncMessage: err?.name === 'AbortError'
-          ? 'Não consegui confirmar no banco.'
-          : (err.message || 'Erro ao salvar jogo.')
-      });
-      showToast(err?.name === 'AbortError' ? 'O cadastro demorou demais. Tenta de novo.' : (err.message || 'Erro ao salvar jogo.'));
-    }
-  } finally {
-    clearTimeout(slowTimer);
-    timeout.clear();
-  }
+  return message;
 }
 
 function normalizeTags(raw) {
@@ -83,40 +28,110 @@ function normalizeTags(raw) {
     .filter(Boolean);
 }
 
+function parseMoney(value) {
+  if (value === null || value === undefined || String(value).trim() === '') return null;
+  const number = Number(String(value).replace(',', '.'));
+  return Number.isFinite(number) ? number : null;
+}
+
+function formatMoney(value) {
+  return Number(value).toFixed(2);
+}
+
+function clampDiscount(value) {
+  if (!Number.isFinite(value)) return null;
+  return Math.max(0, Math.min(100, Math.round(value)));
+}
+
+function discountFromPrices(price, oldPrice) {
+  if (!Number.isFinite(price) || !Number.isFinite(oldPrice) || oldPrice <= 0 || price >= oldPrice) return 0;
+  return clampDiscount((1 - price / oldPrice) * 100) ?? 0;
+}
+
+function priceFromDiscount(oldPrice, discount) {
+  if (!Number.isFinite(oldPrice) || !Number.isFinite(discount)) return null;
+  return Number((oldPrice * (1 - discount / 100)).toFixed(2));
+}
+
+export function syncDiscountFields(source = 'toggle') {
+  const hasDiscountInput = $('adminGameHasDiscount');
+  const priceInput = $('adminGamePrice');
+  const oldPriceInput = $('adminGameOldPrice');
+  const discountInput = $('adminGameDiscount');
+
+  if (!hasDiscountInput || !priceInput || !oldPriceInput || !discountInput || syncingDiscountFields) return;
+
+  syncingDiscountFields = true;
+  try {
+    const hasDiscount = hasDiscountInput.checked;
+    oldPriceInput.disabled = !hasDiscount;
+    discountInput.disabled = !hasDiscount;
+
+    if (!hasDiscount) {
+      oldPriceInput.value = '';
+      discountInput.value = '';
+      return;
+    }
+
+    const price = parseMoney(priceInput.value);
+    let oldPrice = parseMoney(oldPriceInput.value);
+    let discount = parseMoney(discountInput.value);
+
+    if (source === 'toggle' && oldPrice === null && price !== null) {
+      oldPrice = price;
+      oldPriceInput.value = formatMoney(price);
+    }
+
+    if ((source === 'discount' || source === 'old' || source === 'toggle') && oldPrice !== null && discount !== null) {
+      discount = clampDiscount(discount);
+      discountInput.value = String(discount);
+      const nextPrice = priceFromDiscount(oldPrice, discount);
+      if (nextPrice !== null) priceInput.value = formatMoney(nextPrice);
+      return;
+    }
+
+    if ((source === 'price' || source === 'old') && price !== null && oldPrice !== null) {
+      discountInput.value = String(discountFromPrices(price, oldPrice));
+    }
+  } finally {
+    syncingDiscountFields = false;
+  }
+}
+
 function buildGamePayloadFromForm() {
   const title = $('adminGameTitle').value.trim();
   const franchise = $('adminGameFranchise').value.trim();
   const genre = $('adminGameGenre').value;
   const description = $('adminGameDescription').value.trim();
   const tags = normalizeTags($('adminGameTags').value);
-  const price = Number(String($('adminGamePrice').value).replace(',', '.'));
-  const oldPriceRaw = $('adminGameOldPrice').value.trim();
-  const discountRaw = $('adminGameDiscount').value.trim();
+  const hasDiscount = !!$('adminGameHasDiscount')?.checked;
+  let price = parseMoney($('adminGamePrice').value);
+  let old_price = hasDiscount ? parseMoney($('adminGameOldPrice').value) : price;
+  let discount = hasDiscount ? parseMoney($('adminGameDiscount').value) : 0;
 
   if (!title) throw new Error('Preenche o título do jogo.');
   if (!franchise) throw new Error('Preenche a franquia.');
   if (!genre) throw new Error('Seleciona um gênero.');
   if (!description) throw new Error('Preenche a descrição.');
-  if (!Number.isFinite(price) || price < 0) throw new Error('Preço inválido.');
 
-  const old_price = oldPriceRaw === '' ? price : Number(String(oldPriceRaw).replace(',', '.'));
-  if (!Number.isFinite(old_price) || old_price < 0) throw new Error('Preço antigo inválido.');
-
-  let discount = discountRaw === '' ? null : Number(discountRaw);
-  if (discount !== null && (!Number.isFinite(discount) || discount < 0)) {
-    throw new Error('Desconto inválido.');
+  if (hasDiscount && price === null && old_price !== null && discount !== null) {
+    price = priceFromDiscount(old_price, discount);
   }
 
-  if (discount === null) {
-    if (old_price > price && old_price > 0) {
-      discount = Math.round((1 - price / old_price) * 100);
-    } else {
-      discount = 0;
+  if (price === null || price < 0) throw new Error('Preço inválido.');
+
+  if (!hasDiscount) {
+    old_price = price;
+    discount = 0;
+  } else {
+    if (old_price === null || old_price <= 0) throw new Error('Preço antigo inválido.');
+    if (discount === null) discount = discountFromPrices(price, old_price);
+    discount = clampDiscount(discount);
+
+    if (discount === null || discount < 0) throw new Error('Desconto inválido.');
+    if (discount > 0 && old_price <= price) {
+      throw new Error('Para usar desconto, o preço antigo precisa ser maior que o atual.');
     }
-  }
-
-  if (old_price <= price && discount > 0) {
-    throw new Error('Para usar desconto, o preço antigo precisa ser maior que o atual.');
   }
 
   return {
@@ -145,6 +160,8 @@ export function syncAdminGameForm() {
   } else {
     $('adminGameEditingInfo').textContent = 'Preenche os dados para cadastrar um novo jogo.';
   }
+
+  syncDiscountFields('init');
 }
 
 export function resetAdminGameForm() {
@@ -152,6 +169,8 @@ export function resetAdminGameForm() {
 
   if ($('adminGameForm')) $('adminGameForm').reset();
   if ($('adminGameGenre')) $('adminGameGenre').value = 'acao-aventura';
+  if ($('adminGameHasDiscount')) $('adminGameHasDiscount').checked = false;
+  if ($('adminGameOldPrice')) $('adminGameOldPrice').value = '';
   if ($('adminGameDiscount')) $('adminGameDiscount').value = '';
   if ($('adminGameFeatured')) $('adminGameFeatured').checked = false;
 
@@ -164,14 +183,17 @@ export function startEditGame(gameId) {
 
   editingGameId = Number(game.id);
 
+  const hasDiscount = Number(game.discount ?? 0) > 0 && Number(game.old_price ?? 0) > Number(game.price ?? 0);
+
   $('adminGameTitle').value = game.title || '';
   $('adminGameFranchise').value = game.franchise || '';
   $('adminGameGenre').value = game.genre || 'acao-aventura';
-  $('adminGamePrice').value = Number(game.price ?? 0);
-  $('adminGameOldPrice').value = Number(game.old_price ?? game.price ?? 0);
-  $('adminGameDiscount').value = Number(game.discount ?? 0);
+  $('adminGamePrice').value = formatMoney(Number(game.price ?? 0));
+  $('adminGameOldPrice').value = hasDiscount ? formatMoney(Number(game.old_price ?? game.price ?? 0)) : '';
+  $('adminGameDiscount').value = hasDiscount ? Number(game.discount ?? 0) : '';
   $('adminGameTags').value = Array.isArray(game.tags) ? game.tags.join(', ') : '';
   $('adminGameDescription').value = game.description || '';
+  $('adminGameHasDiscount').checked = hasDiscount;
   $('adminGameFeatured').checked = !!game.featured;
 
   syncAdminGameForm();
@@ -191,52 +213,32 @@ export async function submitAdminGameForm(e) {
       submitBtn.disabled = true;
       submitBtn.textContent = 'Salvando...';
     }
+
     const payload = buildGamePayloadFromForm();
 
     if (wasEditingGameId !== null) {
-      const previousGames = [...state.games];
-      state.games = state.games.map(game => Number(game.id) === Number(wasEditingGameId) ? { ...game, ...payload } : game);
-      resetAdminGameForm();
-      renderAdmin();
-      showToast('Alteração enviada.');
-
       const { data, error } = await adminModel.updateGame(wasEditingGameId, payload);
-      if (error) {
-        state.games = previousGames;
-        renderAdmin();
-        return showToast(error.message);
-      }
+      if (error) return showToast(adminErrorMessage(error, 'Erro ao atualizar jogo.'));
 
       state.games = state.games.map(game => Number(game.id) === Number(wasEditingGameId) ? (data || game) : game);
+      resetAdminGameForm();
       renderAdmin();
-
       showToast('Jogo atualizado com sucesso.');
       return;
     }
 
-    const tempId = -Date.now();
-    const optimisticGame = {
-      id: tempId,
-      ...payload,
-      pendingSync: true,
-      syncError: false,
-      syncMessage: 'Sincronizando...',
-      syncPayload: payload
-    };
-    state.games = [...state.games, optimisticGame].sort((a, b) => Number(a.id) - Number(b.id));
+    const { data, error } = await adminModel.createGame(payload);
+    if (error) return showToast(adminErrorMessage(error, 'Erro ao salvar jogo.'));
+
+    if (data) {
+      state.games = [...state.games, data].sort((a, b) => Number(a.id) - Number(b.id));
+    }
     resetAdminGameForm();
     renderAdmin();
-    showToast('Jogo enviado. Pode cadastrar o próximo.');
-
-    persistCreatedGame(tempId, payload);
+    showToast('Jogo salvo no banco.');
   } catch (err) {
     console.error(err);
-    const message = err.message || 'Erro ao salvar jogo.';
-    if (wasEditingGameId === null) {
-      state.games = state.games.filter(game => Number(game.id) >= 0);
-      renderAdmin();
-    }
-    showToast(message);
+    showToast(err.message || 'Erro ao salvar jogo.');
   } finally {
     savingGame = false;
     if ($('adminGameSubmitBtn')) {
@@ -244,24 +246,6 @@ export async function submitAdminGameForm(e) {
       syncAdminGameForm();
     }
   }
-}
-
-export function retryPendingGame(tempId) {
-  const game = state.games.find(item => Number(item.id) === Number(tempId));
-  if (!game?.syncPayload) return showToast('Não encontrei os dados desse cadastro.');
-
-  patchPendingGame(tempId, {
-    pendingSync: true,
-    syncError: false,
-    syncMessage: 'Sincronizando...'
-  });
-  persistCreatedGame(tempId, game.syncPayload);
-}
-
-export function discardPendingGame(tempId) {
-  state.games = state.games.filter(game => Number(game.id) !== Number(tempId));
-  renderAdmin();
-  showToast('Cadastro pendente removido da tela.');
 }
 
 export async function deleteCatalogGame(gameId) {

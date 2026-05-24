@@ -3,12 +3,12 @@ import { $, showToast, openModal, closeModal, hidePurchaseSuccess } from './util
 import * as authModel from './models/authModel.js';
 import * as storeModel from './models/storeModel.js';
 import * as userDataModel from './models/userDataModel.js';
-import { updateHeaderStatus, switchView } from './views/commonView.js';
+import { updateHeaderStatus, switchView, restorePersistedView } from './views/commonView.js';
 import { renderHero, renderFranchises, renderGames, goHero, updateHeroPosition } from './views/storeView.js';
 import { renderCartPage } from './views/cartView.js';
 import { renderLibrary } from './views/libraryView.js';
 import { renderCheckout, updatePaymentUI } from './views/checkoutView.js';
-import { renderAdmin, setAdminTab } from './views/adminView.js';
+import { renderAdmin, setAdminTab, restoreAdminTab } from './views/adminView.js';
 import * as authController from './controllers/authController.js';
 import * as storeController from './controllers/storeController.js';
 import * as checkoutController from './controllers/checkoutController.js';
@@ -161,6 +161,10 @@ function bindEvents() {
   $('savePromoBtn').addEventListener('click', adminController.savePromo);
   $('adminGameSubmitBtn').addEventListener('click', adminController.submitAdminGameForm);
   $('adminCancelEditBtn').addEventListener('click', adminController.resetAdminGameForm);
+  $('adminGameHasDiscount')?.addEventListener('change', () => adminController.syncDiscountFields('toggle'));
+  $('adminGamePrice')?.addEventListener('input', () => adminController.syncDiscountFields('price'));
+  $('adminGameOldPrice')?.addEventListener('input', () => adminController.syncDiscountFields('old'));
+  $('adminGameDiscount')?.addEventListener('input', () => adminController.syncDiscountFields('discount'));
   document.querySelectorAll('[data-admin-tab]').forEach(btn => {
     btn.addEventListener('click', () => setAdminTab(btn.dataset.adminTab));
   });
@@ -192,8 +196,6 @@ window.App = {
   adminRemoveGame: adminController.adminRemoveGame,
   startEditGame: adminController.startEditGame,
   deleteCatalogGame: adminController.deleteCatalogGame,
-  retryPendingGame: adminController.retryPendingGame,
-  discardPendingGame: adminController.discardPendingGame,
   setAdminTab
 };
 
@@ -202,11 +204,14 @@ async function bootstrap() {
     bindEvents();
     hidePurchaseSuccess();
     setupForms();
+    restoreAdminTab();
 
     await refreshAll();
+    restorePersistedView();
 
     authModel.onAuthStateChange(async () => { 
-      await refreshAll(); 
+      await refreshAll();
+      restorePersistedView();
     });
 
     document.getElementById('appLoader')?.classList.add('hidden');

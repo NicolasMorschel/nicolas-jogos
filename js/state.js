@@ -12,6 +12,7 @@ export const state = {
     promo_text: 'Banco online, login real e painel admin com Supabase.'
   },
   currentSlide: 0,
+  currentView: 'storeView',
   heroTimer: null,
   quickFilter: 'all',
   selectedGameId: null,

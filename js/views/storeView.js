@@ -1,9 +1,26 @@
 import { state } from '../state.js';
 import { $, brl, isAdmin, getGame, coverStyle } from '../utils.js';
 
+function hasGameDiscount(game) {
+  return Number(game.discount || 0) > 0 && Number(game.old_price || 0) > Number(game.price || 0);
+}
+
+function priceMarkup(game) {
+  if (!hasGameDiscount(game)) {
+    return `<strong class="new-price">${brl(game.price)}</strong>`;
+  }
+
+  return `
+    <span class="old-price">${brl(game.old_price)}</span>
+    <strong class="new-price">${brl(game.price)}</strong>
+    <span class="discount-box">-${game.discount}%</span>
+  `;
+}
+
 export function renderHero() {
   const ids = (state.storeConfig.carousel?.length ? state.storeConfig.carousel : [1,2,3]).slice(0,3);
   const heroGames = ids.map(getGame).filter(Boolean);
+  const adminMode = isAdmin();
   $('heroTrack').innerHTML = heroGames.map(game => `
     <article class="hero-slide" style="--cover:${coverStyle(game.franchise)};">
       <div class="hero-content">
@@ -11,10 +28,13 @@ export function renderHero() {
         <h1>${game.title}</h1>
         <p>${game.description}</p>
         <div class="tag-list">${(game.tags || []).map(t => `<span>${t}</span>`).join('')}</div>
-        <div class="price-chip"><span class="discount-box">-${game.discount}%</span><span>${brl(game.price)}</span></div>
+        <div class="price-chip">
+          ${hasGameDiscount(game) ? `<span class="discount-box">-${game.discount}%</span>` : ''}
+          <span>${brl(game.price)}</span>
+        </div>
         <div class="stack-actions" style="margin-top:18px;">
           <button class="primary-btn" onclick="window.App.openGame(${game.id})">Ver jogo</button>
-          <button class="ghost-btn" onclick="window.App.addToCart(${game.id})">Adicionar</button>
+          <button class="ghost-btn" onclick="${adminMode ? `window.App.switchView('adminView','Abrindo painel administrativo...')` : `window.App.addToCart(${game.id})`}">${adminMode ? 'Gerenciar' : 'Adicionar'}</button>
         </div>
       </div>
     </article>
@@ -67,7 +87,7 @@ export function renderGames() {
   }
   if (genre !== 'all') list = list.filter(g => g.genre === genre);
   if (state.quickFilter === 'featured') list = list.filter(g => g.featured);
-  if (state.quickFilter === 'discount') list = [...list].sort((a,b)=>b.discount-a.discount);
+  if (state.quickFilter === 'discount') list = list.filter(hasGameDiscount).sort((a,b)=>b.discount-a.discount);
   if (state.quickFilter === 'favorites') list = adminMode ? list : list.filter(g => state.favoriteIds.includes(g.id));
   if (sort === 'cheap') list.sort((a,b)=>a.price-b.price);
   if (sort === 'expensive') list.sort((a,b)=>b.price-a.price);
@@ -90,11 +110,7 @@ export function renderGames() {
           <p>${game.description}</p>
           <div class="tag-list">${(game.tags || []).map(t => `<span>${t}</span>`).join('')}</div>
           <div class="price-row">
-            <div class="price-group">
-              <span class="old-price">${brl(game.old_price)}</span>
-              <strong class="new-price">${brl(game.price)}</strong>
-              <span class="discount-box">-${game.discount}%</span>
-            </div>
+            <div class="price-group">${priceMarkup(game)}</div>
             <div class="stack-actions">
               <button class="ghost-btn" onclick="window.App.openGame(${game.id})">Ver</button>
               <button class="primary-btn" onclick="${buyAction}">${buyLabel}</button>
@@ -110,15 +126,19 @@ export function renderGameModal() {
   const g = getGame(state.selectedGameId);
   const adminMode = isAdmin();
   if (!g) return;
+  const discounted = hasGameDiscount(g);
+
   $('gameModalTitle').textContent = g.title;
   $('gameModalGenre').textContent = String(g.genre).replace('-', ' ').toUpperCase();
   $('gameModalCover').style.setProperty('--cover', coverStyle(g.franchise));
   $('gameModalCover').innerHTML = `<div class="cover-art cover-large" style="background:${coverStyle(g.franchise)}"><span>${g.franchise}</span><strong>${g.title}</strong></div>`;
   $('gameModalDesc').textContent = g.description;
   $('gameModalTags').innerHTML = (g.tags || []).map(t=>`<span>${t}</span>`).join('');
-  $('gameModalOldPrice').textContent = brl(g.old_price);
+  $('gameModalOldPrice').textContent = discounted ? brl(g.old_price) : '';
   $('gameModalNewPrice').textContent = brl(g.price);
-  $('gameModalDiscount').textContent = `-${g.discount}%`;
+  $('gameModalDiscount').textContent = discounted ? `-${g.discount}%` : '';
+  $('gameModalOldPrice').classList.toggle('hidden', !discounted);
+  $('gameModalDiscount').classList.toggle('hidden', !discounted);
 
   $('modalFavoriteBtn').textContent = adminMode ? 'Somente pelo painel admin' : (state.favoriteIds.includes(g.id) ? 'Remover favorito' : 'Favoritar');
   $('modalAddCart').textContent = adminMode ? 'Ir para o Admin' : 'Adicionar ao carrinho';
