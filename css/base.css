@@ -1,0 +1,56 @@
+:root {
+  --bg: #09111f;
+  --bg-2: #0f1728;
+  --panel: rgba(14, 22, 38, 0.9);
+  --panel-soft: rgba(17, 26, 44, 0.85);
+  --line: rgba(255,255,255,0.08);
+  --text: #eef4ff;
+  --muted: #95a5c6;
+  --primary: #4d7cff;
+  --primary-2: #7ea4ff;
+  --green: #41d97f;
+  --yellow: #ffbf47;
+  --red: #ff6679;
+  --radius: 22px;
+  --radius-sm: 16px;
+  --shadow: 0 24px 70px rgba(0,0,0,0.35);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', Arial, sans-serif;
+  color: var(--text);
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(77,124,255,0.16), transparent 22%),
+    radial-gradient(circle at 85% 4%, rgba(65,217,127,0.07), transparent 18%),
+    linear-gradient(180deg, #09111f 0%, #0b1323 38%, #08101c 100%);
+}
+a { color: inherit; text-decoration: none; }
+button, input, select, textarea { font: inherit; }
+img { max-width: 100%; display: block; }
+.hidden { display:none !important; }
+.full { width:100%; }
+.container { width: min(94%, 1320px); margin: 0 auto; }
+.kicker { display:block; color: var(--primary-2); font-size:.8rem; letter-spacing:.14em; text-transform: uppercase; margin-bottom: 8px; }
+
+.loader {
+  position: fixed; inset: 0; z-index: 5000; display:grid; place-items:center;
+  background: radial-gradient(circle at center, rgba(77,124,255,.15), transparent 30%), linear-gradient(180deg,#08111e,#070d18 70%);
+  transition: .45s ease;
+}
+.loader.hidden { opacity:0; visibility:hidden; }
+.loader-card {
+  width:min(92vw,420px); background:rgba(10,16,30,.88); border:1px solid var(--line);
+  border-radius:28px; padding:32px; box-shadow:var(--shadow); text-align:center;
+}
+.loader-logo {
+  width:72px; height:72px; margin:0 auto 18px; border-radius:22px; display:grid; place-items:center;
+  font-weight:800; font-size:1.35rem; background:linear-gradient(135deg,var(--primary-2),var(--primary));
+}
+.loader-card p { color: var(--muted); margin: 10px 0 16px; }
+.loader-bar { height: 10px; border-radius:999px; background: rgba(255,255,255,.06); overflow:hidden; }
+.loader-bar span { display:block; height:100%; width:0; background:linear-gradient(90deg,var(--primary-2),var(--green)); }
+
+.disabled-btn { opacity:.55; cursor:not-allowed; pointer-events:none; }
+.hidden { display:none !important; }

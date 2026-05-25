@@ -1,0 +1,58 @@
+.modal { position:fixed; inset:0; display:none; align-items:center; justify-content:center; padding:18px; background:rgba(5,8,14,.7); z-index:4000; backdrop-filter: blur(6px); }
+.modal.show { display:flex; }
+.modal-card { width:min(100%, 480px); padding:24px; background:rgba(12,18,32,.96); border:1px solid var(--line); border-radius:26px; box-shadow:var(--shadow); }
+.small-card { max-width:440px; }
+.game-modal-card { max-width:860px; width:min(100%,860px); }
+.modal-head { display:flex; justify-content:space-between; align-items:start; gap:12px; margin-bottom:18px; }
+.modal-head p { color:var(--muted); }
+.close { width:42px; height:42px; border-radius:12px; background:rgba(255,255,255,.06); color:var(--text); }
+.twofactor { margin-top:12px; display:grid; gap:12px; }
+.demo-box { display:grid; gap:4px; margin-top:16px; padding:14px; border-radius:16px; background:rgba(255,255,255,.04); color:var(--muted); }
+.demo-box strong { color:var(--text); margin-top:8px; }
+.helper { color:var(--muted); font-size:.9rem; margin-bottom:8px; }
+.strength { height:10px; background:rgba(255,255,255,.06); border-radius:999px; overflow:hidden; }
+.strength-bar { height:100%; width:0; background:var(--red); transition:.25s ease; }
+.game-modal-cover { min-height:320px; border-radius:20px; background:var(--cover); background-size:cover; background-position:center; }
+.game-modal-info p { color:var(--muted); line-height:1.6; margin-bottom:14px; }
+.modal-price-box { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:18px 0; }
+.app-toast {
+  position:fixed; right:20px; bottom:20px; z-index:4500; padding:15px 18px; background:rgba(14,21,37,.94); display:none;
+}
+.app-toast.show { display:block; animation: toastIn .25s ease; }
+@keyframes toastIn { from { opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
+
+.purchase-success {
+  position:fixed;
+  inset:0;
+  z-index:4200;
+  display:grid;
+  place-items:center;
+  padding:18px;
+  background:rgba(5,8,14,.68);
+  backdrop-filter:blur(6px);
+}
+.purchase-success-card {
+  width:min(100%,420px);
+  padding:26px;
+  border:1px solid var(--line);
+  border-radius:24px;
+  background:rgba(12,18,32,.96);
+  box-shadow:var(--shadow);
+  text-align:center;
+}
+.purchase-success-icon {
+  width:58px;
+  height:58px;
+  margin:0 auto 14px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:rgba(65,217,127,.18);
+  color:#c8f9da;
+  font-weight:900;
+  font-size:1.6rem;
+}
+.purchase-success-card p {
+  color:var(--muted);
+  margin-bottom:18px;
+}

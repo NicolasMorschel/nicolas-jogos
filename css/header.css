@@ -1,0 +1,55 @@
+.topbar {
+  position: sticky; top:0; z-index: 1500; backdrop-filter: blur(16px);
+  background: rgba(8,13,24,.78); border-bottom:1px solid var(--line);
+}
+.topbar-inner {
+  padding:16px 0;
+}
+.brand { display:flex; align-items:center; gap:12px; }
+.brand-mark {
+  width:48px; height:48px; border-radius:15px; display:grid; place-items:center; font-weight:800;
+  background: linear-gradient(135deg,var(--primary-2),var(--primary)); box-shadow: var(--shadow);
+}
+.brand small { color: var(--muted); display:block; font-size:.82rem; }
+.main-nav { display:flex; gap:8px; flex-wrap:wrap; }
+.nav-btn, .ghost-btn, .primary-btn, .slider-btn, .close, .filter-link {
+  border:none; cursor:pointer; transition:.22s ease;
+}
+.nav-btn:hover, .ghost-btn:hover, .primary-btn:hover, .slider-btn:hover, .close:hover, .filter-link:hover { transform:translateY(-1px); }
+.nav-btn {
+  color:var(--muted); background:transparent; border-radius:12px; padding:10px 12px;
+}
+.nav-btn.active { background:rgba(255,255,255,.07); color:var(--text); }
+.searchbox {
+  min-width:260px; flex:1; align-items:center; border-radius:999px;
+  background:rgba(255,255,255,.04); border:1px solid var(--line); overflow:hidden;
+}
+.searchbox .input-group-text {
+  width:44px; min-height:52px; border:0; background:transparent; position:relative;
+}
+.searchbox-icon::before {
+  content:""; width:14px; height:14px; border:2px solid var(--muted); border-radius:50%; position:absolute; left:17px; top:15px;
+}
+.searchbox-icon::after {
+  content:""; width:8px; height:2px; background:var(--muted); position:absolute; left:29px; top:30px; transform:rotate(-45deg); border-radius:999px;
+}
+.searchbox .form-control { flex:1; min-height:52px; background:transparent; border:0; box-shadow:none; color:var(--text); padding-left:0; }
+.searchbox .form-control::placeholder { color:rgba(233,238,252,.5); }
+.header-actions { display:flex; gap:10px; flex-wrap:wrap; }
+.ghost-btn, .primary-btn {
+  padding:12px 16px; border-radius:14px; font-weight:700;
+}
+.ghost-btn { background:rgba(255,255,255,.05); color:var(--text); border:1px solid var(--line); }
+.primary-btn { background:linear-gradient(135deg,var(--primary-2),var(--primary)); color:white; }
+
+main { padding-bottom: 40px; }
+#root { min-height:100vh; }
+.brand-button {
+  border:none;
+  background:transparent;
+  color:var(--text);
+  cursor:pointer;
+  text-align:left;
+  padding:0;
+}
+.brand-button:hover { transform:none; }
