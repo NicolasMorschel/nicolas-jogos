@@ -1,6 +1,7 @@
 import type { CSSProperties, FormEvent } from 'react';
 import type { Game } from '../types';
 import { Modal } from './common';
+import { FormInput } from './forms';
 import { PriceGroup, TagList } from './game';
 import { coverStyle, genreLabel } from '../utils';
 
@@ -28,8 +29,8 @@ export function LoginModal({
           <button className="btn close" type="button" onClick={onClose}>×</button>
         </div>
         <div className="form-grid">
-          <input className="form-control input" value={form.email} onChange={event => setForm({ ...form, email: event.target.value })} type="email" placeholder="Seu e-mail" />
-          <input className="form-control input" value={form.password} onChange={event => setForm({ ...form, password: event.target.value })} type="password" placeholder="Sua senha" />
+          <FormInput value={form.email} onChange={event => setForm({ ...form, email: event.target.value })} type="email" placeholder="Seu e-mail" />
+          <FormInput value={form.password} onChange={event => setForm({ ...form, password: event.target.value })} type="password" placeholder="Sua senha" />
           <button className="btn primary-btn full">Entrar</button>
         </div>
       </form>
@@ -67,9 +68,9 @@ export function RegisterModal({
           <button className="btn close" type="button" onClick={onClose}>×</button>
         </div>
         <div className="form-grid">
-          <input className="form-control input" value={form.name} onChange={event => setForm({ ...form, name: event.target.value })} type="text" placeholder="Seu nome" />
-          <input className="form-control input" value={form.email} onChange={event => setForm({ ...form, email: event.target.value })} type="email" placeholder="Seu e-mail" />
-          <input className="form-control input" value={form.password} onChange={event => setForm({ ...form, password: event.target.value })} type="password" placeholder="Crie uma senha forte" />
+          <FormInput value={form.name} onChange={event => setForm({ ...form, name: event.target.value })} type="text" placeholder="Seu nome" />
+          <FormInput value={form.email} onChange={event => setForm({ ...form, email: event.target.value })} type="email" placeholder="Seu e-mail" />
+          <FormInput value={form.password} onChange={event => setForm({ ...form, password: event.target.value })} type="password" placeholder="Crie uma senha forte" />
           <div>
             <p className="helper">Força da senha</p>
             <div className="strength">

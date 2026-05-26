@@ -1,9 +1,9 @@
-import type { AdminTab, GameForm, StoreConfig, ViewId } from '../types';
+import type { AdminTab, GameForm, GameRestrictionForm, StoreConfig, ViewId } from '../types';
 
 export const VIEW_STORAGE_KEY = 'nicolasJogos.currentView';
 export const ADMIN_TAB_STORAGE_KEY = 'nicolasJogos.adminTab';
 
-export const validViews: ViewId[] = ['storeView', 'libraryView', 'cartView', 'checkoutView', 'adminView'];
+export const validViews: ViewId[] = ['storeView', 'libraryView', 'cartView', 'checkoutView', 'adminView', 'profileView', 'socialView'];
 export const adminTabs: AdminTab[] = ['users', 'library', 'catalog', 'home'];
 
 export const emptyGameForm: GameForm = {
@@ -25,6 +25,13 @@ export const emptyCardForm = {
   date: '',
   cvv: '',
   save: false
+};
+
+export const emptyGameRestrictionForm: GameRestrictionForm = {
+  gameId: '',
+  type: 'warning',
+  duration: '7d',
+  reason: ''
 };
 
 export const defaultStoreConfig: StoreConfig = {

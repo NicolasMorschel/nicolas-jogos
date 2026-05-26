@@ -24,11 +24,20 @@
 }
 .admin-tab-btn:hover { color:var(--text); background:rgba(255,255,255,.05); }
 .admin-tab-btn.active { color:var(--text); background:rgba(77,124,255,.16); }
-.admin-tab-panel { display:none; }
-.admin-tab-panel.active { display:block; animation: fadeUp .22s ease; }
 .admin-bottom-grid { margin-bottom:18px; }
 .admin-card-head { display:flex; justify-content:space-between; align-items:start; gap:12px; margin-bottom:16px; }
-.admin-users-table, .admin-library-list { display:grid; gap:10px; }
+.admin-library-list { display:grid; gap:10px; }
+.admin-library-mode-row {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin:16px 0 12px;
+}
+.admin-library-table-wrap {
+  margin-top:12px;
+}
 .admin-mobile-users { display:grid; gap:10px; }
 .admin-mobile-user-card {
   width:100%;
@@ -58,12 +67,14 @@
   background:rgba(255,255,255,.03);
 }
 .admin-users-table-desktop {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--text);
+  --bs-table-border-color: rgba(255,255,255,.06);
+  --bs-table-hover-bg: rgba(255,255,255,.04);
+  --bs-table-hover-color: var(--text);
   width:100%;
   min-width:820px;
-  border-collapse:separate;
-  border-spacing:0;
   table-layout:fixed;
-  color:var(--text);
 }
 .admin-col-user { width:auto; }
 .admin-col-role { width:130px; }
@@ -117,48 +128,9 @@
   justify-content:center;
   white-space:nowrap;
 }
-.admin-table, .admin-user-row {
-  display:grid;
-  grid-template-columns:minmax(260px,1fr) 120px 120px 120px 190px;
-  align-items:center;
-  gap:12px;
-}
-.admin-table-head {
-  padding:14px 16px;
-  background:rgba(255,255,255,.05);
-  color:#d9e2ff;
-  font-size:.88rem;
-  font-weight:700;
-  text-transform:uppercase;
-  letter-spacing:.06em;
-  border-bottom:1px solid rgba(255,255,255,.06);
-}
-.admin-users-table { gap:0; }
-.admin-user-row {
-  width:100%;
-  text-align:left;
-  color:var(--text);
-  margin:0;
-  border:none;
-  border-radius:0;
-  border-bottom:1px solid rgba(255,255,255,.06);
-  padding:16px;
-  background:transparent;
-}
-.admin-user-row:last-child { border-bottom:none; }
-.admin-user-row:hover { background:rgba(255,255,255,.04); }
-.admin-user-row > div { min-width:0; }
 .admin-user-main strong { display:block; margin-bottom:4px; }
-.admin-user-main strong,
-.admin-user-row > div > strong {
+.admin-user-main strong {
   color:var(--text);
-}
-.admin-user-main,
-.admin-user-row > div:nth-child(2),
-.admin-user-row > div:nth-child(3),
-.admin-user-row > div:nth-child(4),
-.admin-user-row > div:nth-child(5) {
-  align-self:center;
 }
 .admin-role-badge, .admin-status-badge {
   display:inline-flex;
@@ -178,12 +150,6 @@
   background:rgba(46,204,113,.14);
   color:#c9f7dd;
 }
-.admin-actions {
-  display:flex;
-  justify-content:flex-end;
-  gap:8px;
-  flex-wrap:wrap;
-}
 .admin-item-actions {
   display:flex;
   justify-content:flex-end;
@@ -199,10 +165,23 @@
 .admin-lib-item strong {
   color:var(--text);
 }
-.admin-actions .ghost-btn,
-.admin-actions .primary-btn {
-  padding:10px 12px;
-  font-size:.88rem;
+.admin-lib-item-selectable {
+  cursor:pointer;
+  transition:border-color .18s ease, background .18s ease, transform .18s ease;
+}
+.admin-lib-item-selectable:hover,
+.admin-lib-item-selectable:focus-visible {
+  border-color:rgba(126,164,255,.3);
+  background:rgba(77,124,255,.08);
+  outline:none;
+}
+.admin-lib-item-selectable.selected {
+  border-color:rgba(126,164,255,.5);
+  background:rgba(77,124,255,.14);
+}
+.admin-select-hint {
+  display:inline-flex;
+  align-items:center;
   white-space:nowrap;
 }
 .selected-user-box strong { font-size:1.02rem; }
@@ -222,7 +201,6 @@
   margin-bottom:6px;
 }
 .selected-user-stat strong { font-size:1.1rem; }
-.admin-user-row.active { border-color: rgba(126,164,255,.28); background: rgba(77,124,255,.12); }
 .admin-user-meta { color:var(--muted); font-size:.92rem; }
 .selected-user-box { padding:14px; border-radius:16px; background:rgba(255,255,255,.04); margin-bottom:12px; color:var(--muted); }
 .admin-form-row { margin-top:14px; }
@@ -246,7 +224,117 @@
   gap:10px;
   flex-wrap:wrap;
 }
+.admin-empty-selection {
+  display:grid;
+  gap:10px;
+  align-items:start;
+}
+.admin-empty-selection p {
+  margin:0;
+}
+.admin-empty-selection .primary-btn {
+  width:max-content;
+}
+.restriction-panel {
+  margin-top:16px;
+  padding:16px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:18px;
+  background:rgba(255,255,255,.035);
+}
+.restriction-panel-head {
+  margin-bottom:14px;
+}
+.restriction-panel-head h4 {
+  margin-bottom:4px;
+}
+.restriction-panel-head p {
+  color:var(--muted);
+  margin:0;
+}
+.restriction-selected-game {
+  display:grid;
+  gap:3px;
+  margin-bottom:14px;
+  padding:14px;
+  border:1px dashed rgba(126,164,255,.22);
+  border-radius:16px;
+  background:rgba(77,124,255,.07);
+}
+.restriction-selected-game span {
+  color:var(--primary-2);
+  font-size:.78rem;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+.restriction-selected-game strong {
+  color:var(--text);
+  font-size:1.05rem;
+}
+.restriction-selected-game small {
+  color:var(--muted);
+}
+.restriction-selected-game.active {
+  border-style:solid;
+  background:rgba(77,124,255,.11);
+}
+.restriction-inline-list {
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:8px;
+}
+.restriction-pill {
+  display:inline-flex;
+  align-items:center;
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:.78rem;
+  font-weight:800;
+}
+.restriction-pill.warning {
+  color:#d9e3ff;
+  background:rgba(77,124,255,.16);
+}
+.restriction-pill.ban {
+  color:#ffc9d2;
+  background:rgba(255,92,117,.14);
+}
+.restriction-list {
+  display:grid;
+  gap:10px;
+  margin-top:14px;
+}
+.restriction-item {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:14px;
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:16px;
+  background:rgba(255,255,255,.04);
+}
+.restriction-item p {
+  margin:6px 0 0;
+  color:var(--muted);
+}
+.restriction-item .ghost-btn {
+  min-width:100px;
+}
 .disabled-btn {
   pointer-events:none;
   opacity:.7;
+}
+
+@media (max-width: 575.98px) {
+  .admin-empty-selection .primary-btn,
+  .restriction-item .ghost-btn {
+    width:100%;
+  }
+  .restriction-item {
+    align-items:stretch;
+    flex-direction:column;
+  }
 }

@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react';
 import type { AuthState, FranchiseSummary, Game, QuickFilter, StoreConfig, ViewId } from '../types';
 import { FilterButton, StatusRow } from '../components/common';
+import { FormSelect } from '../components/forms';
 import { GameCard, TagList } from '../components/game';
 import { brl, coverStyle, genres, hasGameDiscount } from '../utils';
 
@@ -55,7 +56,7 @@ export function StoreView({
   return (
     <section className="view active">
       <section className="hero-section">
-        <div className="container">
+        <div className="container-xxl">
           <div className="row g-3 align-items-stretch">
             <div className="col-12 col-xl-8">
               <div className="hero-slider h-100">
@@ -103,6 +104,7 @@ export function StoreView({
               <div className="side-panel account-panel">
                 <StatusRow label="Sessão" value={auth.profile?.name || 'Visitante'} />
                 <StatusRow label="Tipo" value={isAdmin ? 'Administrador' : 'Usuário'} />
+                {isLoggedIn && <StatusRow label="Status" value={auth.profile?.status === 'blocked' ? 'Bloqueada' : 'Ativa'} />}
                 <StatusRow label="Favoritos" value={isAdmin ? '—' : favoriteIds.length} />
                 <StatusRow label="Biblioteca" value={isLoggedIn && !isAdmin ? libraryIds.length : 0} />
                 <StatusRow label="Carrinho" value={isAdmin ? '—' : cartIds.length} />
@@ -113,7 +115,7 @@ export function StoreView({
       </section>
 
       <section className="section-block">
-        <div className="container">
+        <div className="container-xxl">
           <div className="section-head">
             <span className="kicker">Franquias famosas</span>
             <h2>Catálogo com jogos reais</h2>
@@ -132,7 +134,7 @@ export function StoreView({
       </section>
 
       <section className="section-block" id="catalogBlock">
-        <div className="container">
+        <div className="container-xxl">
           <div className="row g-3 align-items-start">
             <aside className="col-12 col-xl-3 store-sidebar sticky-xl-top">
               <div className="side-panel">
@@ -159,16 +161,16 @@ export function StoreView({
                   <p>Franquias reais, carrinho e biblioteca no banco.</p>
                 </div>
                 <div className="catalog-filters">
-                  <select className="form-select input" value={genreFilter} onChange={event => setGenreFilter(event.target.value)}>
+                  <FormSelect value={genreFilter} onChange={event => setGenreFilter(event.target.value)}>
                     <option value="all">Todos os gêneros</option>
                     {genres.map(genre => <option key={genre.value} value={genre.value}>{genre.label}</option>)}
-                  </select>
-                  <select className="form-select input" value={sortFilter} onChange={event => setSortFilter(event.target.value)}>
+                  </FormSelect>
+                  <FormSelect value={sortFilter} onChange={event => setSortFilter(event.target.value)}>
                     <option value="popular">Mais populares</option>
                     <option value="cheap">Menor preço</option>
                     <option value="expensive">Maior preço</option>
                     <option value="discount">Maior desconto</option>
-                  </select>
+                  </FormSelect>
                 </div>
               </div>
               <div className="games-grid row row-cols-1 row-cols-md-2 row-cols-xxl-3 g-3">

@@ -1,4 +1,5 @@
 import type { CardForm, Game, PaymentMethod, SavedCard } from '../types';
+import { CheckboxField, FormInput, FormSelect } from '../components/forms';
 import { brl } from '../utils';
 
 export function CheckoutView({ games, total, paymentMethod, setPaymentMethod, installments, setInstallments, cardForm, setCardForm, savedCards, selectedSavedCardId, onSelectCard, onCart, onFinish }: {
@@ -24,7 +25,7 @@ export function CheckoutView({ games, total, paymentMethod, setPaymentMethod, in
 
   return (
     <section className="view active">
-      <div className="container page-shell">
+      <div className="container-xxl page-shell">
         <div className="page-header d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-end gap-3">
           <div>
             <span className="kicker">Etapa 2</span>
@@ -72,24 +73,23 @@ export function CheckoutView({ games, total, paymentMethod, setPaymentMethod, in
                       ) : <p className="helper">Nenhum cartão salvo ainda.</p>}
                     </div>
                     <div className="card-form-box">
-                      <input className="form-control input" value={cardForm.name} onChange={event => setCardField('name', event.target.value)} placeholder="Nome no cartão" />
-                      <input className="form-control input" value={cardForm.number} onChange={event => setCardField('number', event.target.value.replace(/\D/g, '').replace(/(\d{4})(?=\d)/g, '$1 ').slice(0, 19).trim())} placeholder="Número do cartão" maxLength={19} />
+                      <FormInput value={cardForm.name} onChange={event => setCardField('name', event.target.value)} placeholder="Nome no cartão" />
+                      <FormInput value={cardForm.number} onChange={event => setCardField('number', event.target.value.replace(/\D/g, '').replace(/(\d{4})(?=\d)/g, '$1 ').slice(0, 19).trim())} placeholder="Número do cartão" maxLength={19} />
                       <div className="row g-2">
                         <div className="col-12 col-sm-6">
-                          <input className="form-control input" value={cardForm.date} onChange={event => {
+                          <FormInput value={cardForm.date} onChange={event => {
                             let value = event.target.value.replace(/\D/g, '').slice(0, 4);
                             if (value.length > 2) value = `${value.slice(0, 2)}/${value.slice(2)}`;
                             setCardField('date', value);
                           }} placeholder="MM/AA" maxLength={5} />
                         </div>
                         <div className="col-12 col-sm-6">
-                          <input className="form-control input" value={cardForm.cvv} onChange={event => setCardField('cvv', event.target.value.replace(/\D/g, '').slice(0, 3))} placeholder="CVV" maxLength={3} />
+                          <FormInput value={cardForm.cvv} onChange={event => setCardField('cvv', event.target.value.replace(/\D/g, '').slice(0, 3))} placeholder="CVV" maxLength={3} />
                         </div>
                       </div>
-                      <label className="save-card-label">
-                        <input type="checkbox" checked={cardForm.save} onChange={event => setCardField('save', event.target.checked)} />
+                      <CheckboxField checked={cardForm.save} onChange={checked => setCardField('save', checked)}>
                         Salvar cartão para próximas compras
-                      </label>
+                      </CheckboxField>
                     </div>
                   </>
                 )}
@@ -97,9 +97,9 @@ export function CheckoutView({ games, total, paymentMethod, setPaymentMethod, in
                 {paymentMethod === 'credito' && (
                   <div>
                     <label className="helper" htmlFor="installmentsSelect">Parcelamento</label>
-                    <select className="form-select input" id="installmentsSelect" value={installments} onChange={event => setInstallments(Number(event.target.value))}>
+                    <FormSelect id="installmentsSelect" value={installments} onChange={event => setInstallments(Number(event.target.value))}>
                       {[1, 2, 3, 4, 5, 6].map(value => <option key={value} value={value}>{value}x{value === 6 ? ' com juros' : ''}</option>)}
-                    </select>
+                    </FormSelect>
                     <p className="helper">{installments === 1 ? '1x sem juros' : `${installments}x de ${brl(total / installments)} com juros`}</p>
                   </div>
                 )}

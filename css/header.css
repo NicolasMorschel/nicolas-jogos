@@ -53,3 +53,12 @@ main { padding-bottom: 40px; }
   padding:0;
 }
 .brand-button:hover { transform:none; }
+.account-status-wrap {
+  padding-top:12px;
+}
+.account-status-alert {
+  border:1px solid rgba(255,191,71,.28);
+  border-radius:16px;
+  background:rgba(255,191,71,.12);
+  color:#ffe4a6;
+}

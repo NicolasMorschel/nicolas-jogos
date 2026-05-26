@@ -1,9 +1,11 @@
-import { Header, Loader, Toast } from './components/common';
+import { AccountStatusBanner, Header, Loader, Toast } from './components/common';
 import { GameModal, LoginModal, PurchaseSuccess, RegisterModal } from './components/modals';
 import { AdminView as AdminScreen } from './views/AdminView';
 import { CartView as CartScreen } from './views/CartView';
 import { CheckoutView as CheckoutScreen } from './views/CheckoutView';
 import { LibraryView as LibraryScreen } from './views/LibraryView';
+import { ProfileView as ProfileScreen } from './views/ProfileView';
+import { SocialView as SocialScreen } from './views/SocialView';
 import { StoreView } from './views/StoreView';
 import { useAppController } from './hooks/useAppController';
 
@@ -16,14 +18,30 @@ export default function App() {
     favoriteIds,
     libraryIds,
     savedCards,
+    gameRestrictions,
+    socialProfiles,
+    friendships,
+    userReports,
+    playStats,
+    chatMessages,
+    chatGroups,
+    chatGroupMembers,
+    communityServers,
+    communityServerMembers,
+    communityRoles,
+    communityMemberRoles,
+    communityChannels,
+    communityVoicePresence,
     adminUsers,
     adminLibraryItems,
+    adminGameRestrictions,
     selectedAdminUserId,
     currentView,
     adminTab,
     loading,
     loaderText,
     toast,
+    showToast,
     loginOpen,
     setLoginOpen,
     registerOpen,
@@ -65,17 +83,31 @@ export default function App() {
     editingGameId,
     savingGame,
     gameForm,
+    restrictionForm,
+    setRestrictionForm,
+    libraryMode,
+    setLibraryMode,
+    adminLibraryMode,
+    setAdminLibraryMode,
+    profileForm,
+    setProfileForm,
+    passwordForm,
+    setPasswordForm,
+    reportForm,
+    setReportForm,
     carouselForm,
     setCarouselForm,
     promoForm,
     setPromoForm,
     isAdmin,
     isLoggedIn,
+    isBlocked,
     heroGames,
     filteredGames,
     franchises,
     cartGames,
     libraryGames,
+    favoriteGames,
     cartSubtotal,
     cartFee,
     checkoutTotal,
@@ -99,13 +131,37 @@ export default function App() {
     toggleUserRole,
     adminAddGame,
     adminRemoveGame,
+    applyGameRestriction,
+    revokeGameRestriction,
     startEditGame,
     resetGameForm,
     submitGameForm,
     deleteCatalogGame,
     saveCarousel,
     savePromo,
-    updateGameForm
+    updateGameForm,
+    saveProfile,
+    saveEmail,
+    changePassword,
+    requestFriend,
+    updateFriendship,
+    submitReport,
+    playGame,
+    sendChatMessage,
+    deleteChatMessage,
+    createChatGroup,
+    createCommunityServer,
+    addCommunityMember,
+    joinCommunityByInvite,
+    updateCommunityVisibility,
+    deleteCommunityServer,
+    createCommunityChannel,
+    deleteCommunityChannel,
+    createCommunityRole,
+    deleteCommunityRole,
+    assignCommunityRole,
+    joinVoiceChannel,
+    leaveVoiceChannel
   } = useAppController();
 
   return (
@@ -123,6 +179,7 @@ export default function App() {
         onRegister={() => setRegisterOpen(true)}
         onLogout={handleLogout}
       />
+      <AccountStatusBanner blocked={isBlocked} />
       <main>
         {currentView === 'storeView' && (
           <StoreView
@@ -152,7 +209,96 @@ export default function App() {
           />
         )}
         {currentView === 'libraryView' && (
-          <LibraryScreen games={libraryGames} profileName={auth.profile?.name} isAdmin={isAdmin} onStore={() => switchView('storeView')} />
+          <LibraryScreen
+            games={libraryGames}
+            profileName={auth.profile?.name}
+            isAdmin={isAdmin}
+            isBlocked={isBlocked}
+            gameRestrictions={gameRestrictions}
+            playStats={playStats}
+            mode={libraryMode}
+            setMode={setLibraryMode}
+            onStore={() => switchView('storeView')}
+            onPlayGame={playGame}
+            onBlockedPlay={message => showToast(message || 'Conta bloqueada. Você pode comprar jogos, mas não pode jogar agora.')}
+          />
+        )}
+
+        {currentView === 'profileView' && (
+          <ProfileScreen
+            profile={auth.profile}
+            email={auth.user?.email || ''}
+            profileForm={profileForm}
+            setProfileForm={setProfileForm}
+            passwordForm={passwordForm}
+            setPasswordForm={setPasswordForm}
+            reportForm={reportForm}
+            setReportForm={setReportForm}
+            socialProfiles={socialProfiles}
+            friendships={friendships}
+            userReports={userReports}
+            playStats={playStats}
+            chatMessages={chatMessages}
+            chatGroups={chatGroups}
+            chatGroupMembers={chatGroupMembers}
+            communityServers={communityServers}
+            communityServerMembers={communityServerMembers}
+            communityRoles={communityRoles}
+            communityMemberRoles={communityMemberRoles}
+            communityChannels={communityChannels}
+            communityVoicePresence={communityVoicePresence}
+            favoriteGames={favoriteGames}
+            libraryGames={libraryGames}
+            onOpenGame={setSelectedGameId}
+            onSaveProfile={saveProfile}
+            onSaveEmail={saveEmail}
+            onChangePassword={changePassword}
+            onRequestFriend={requestFriend}
+            onUpdateFriendship={updateFriendship}
+            onSubmitReport={submitReport}
+            onSendChatMessage={sendChatMessage}
+            onCreateGroup={createChatGroup}
+            onCreateServer={createCommunityServer}
+            onAddServerMember={addCommunityMember}
+            onCreateChannel={createCommunityChannel}
+            onCreateRole={createCommunityRole}
+            onAssignRole={assignCommunityRole}
+            onJoinVoice={joinVoiceChannel}
+            onLeaveVoice={leaveVoiceChannel}
+          />
+        )}
+
+        {currentView === 'socialView' && (
+          <SocialScreen
+            profile={auth.profile}
+            socialProfiles={socialProfiles}
+            friendships={friendships}
+            chatMessages={chatMessages}
+            chatGroups={chatGroups}
+            communityServers={communityServers}
+            communityServerMembers={communityServerMembers}
+            communityRoles={communityRoles}
+            communityMemberRoles={communityMemberRoles}
+            communityChannels={communityChannels}
+            communityVoicePresence={communityVoicePresence}
+            onRequestFriend={requestFriend}
+            onUpdateFriendship={updateFriendship}
+            onSendChatMessage={sendChatMessage}
+            onDeleteMessage={deleteChatMessage}
+            onCreateGroup={createChatGroup}
+            onCreateServer={createCommunityServer}
+            onAddServerMember={addCommunityMember}
+            onJoinServerByInvite={joinCommunityByInvite}
+            onUpdateServerVisibility={updateCommunityVisibility}
+            onDeleteServer={deleteCommunityServer}
+            onCreateChannel={createCommunityChannel}
+            onDeleteChannel={deleteCommunityChannel}
+            onCreateRole={createCommunityRole}
+            onDeleteRole={deleteCommunityRole}
+            onAssignRole={assignCommunityRole}
+            onJoinVoice={joinVoiceChannel}
+            onLeaveVoice={leaveVoiceChannel}
+          />
         )}
 
         {currentView === 'cartView' && (
@@ -164,10 +310,7 @@ export default function App() {
             games={cartGames}
             total={checkoutTotal}
             paymentMethod={paymentMethod}
-            setPaymentMethod={method => {
-              setPaymentMethod(method);
-              setSelectedSavedCardId(null);
-            }}
+            setPaymentMethod={setPaymentMethod}
             installments={installments}
             setInstallments={setInstallments}
             cardForm={cardForm}
@@ -205,8 +348,13 @@ export default function App() {
             selectedUser={selectedAdminUser}
             selectedUserId={selectedAdminUserId}
             adminLibraryItems={adminLibraryItems}
+            adminGameRestrictions={adminGameRestrictions}
+            adminLibraryMode={adminLibraryMode}
+            setAdminLibraryMode={setAdminLibraryMode}
             addGameId={addGameId}
             setAddGameId={setAddGameId}
+            restrictionForm={restrictionForm}
+            setRestrictionForm={setRestrictionForm}
             gameForm={gameForm}
             updateGameForm={updateGameForm}
             editingGameId={editingGameId}
@@ -223,6 +371,8 @@ export default function App() {
             onToggleRole={toggleUserRole}
             onAddGame={adminAddGame}
             onRemoveGame={adminRemoveGame}
+            onApplyGameRestriction={applyGameRestriction}
+            onRevokeGameRestriction={revokeGameRestriction}
             onEditGame={startEditGame}
             onDeleteGame={deleteCatalogGame}
             onSaveCarousel={saveCarousel}

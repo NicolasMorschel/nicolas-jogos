@@ -20,6 +20,19 @@ export function Toast({ message }: { message: string }) {
   return <div className={`app-toast ${message ? 'show' : ''}`} role="status" aria-live="polite">{message}</div>;
 }
 
+export function AccountStatusBanner({ blocked }: { blocked: boolean }) {
+  if (!blocked) return null;
+
+  return (
+    <div className="container-xxl account-status-wrap">
+      <div className="alert account-status-alert mb-0" role="alert">
+        <strong>Conta bloqueada.</strong>
+        <span> Você ainda pode navegar e comprar jogos, mas não pode jogar até um admin reativar sua conta.</span>
+      </div>
+    </div>
+  );
+}
+
 export function Header({
   currentView,
   isAdmin,
@@ -43,7 +56,7 @@ export function Header({
 }) {
   return (
     <header className="navbar topbar">
-      <div className="container topbar-inner d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-3">
+      <div className="container-xxl topbar-inner d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-3">
         <button className="brand brand-button flex-shrink-0" type="button" onClick={() => onSwitchView('storeView')}>
           <span className="brand-mark">NJ</span>
           <span>
@@ -52,9 +65,11 @@ export function Header({
           </span>
         </button>
 
-        <nav className="nav nav-pills main-nav flex-nowrap flex-lg-wrap overflow-auto">
+        <nav className="nav nav-pills main-nav flex-wrap">
           <button className={`btn nav-btn ${currentView === 'storeView' ? 'active' : ''}`} onClick={() => onSwitchView('storeView')}>Loja</button>
           {!isAdmin && <button className={`btn nav-btn ${currentView === 'libraryView' ? 'active' : ''}`} onClick={() => onSwitchView('libraryView')}>Biblioteca</button>}
+          {isLoggedIn && <button className={`btn nav-btn ${currentView === 'socialView' ? 'active' : ''}`} onClick={() => onSwitchView('socialView')}>Comunidades</button>}
+          {isLoggedIn && <button className={`btn nav-btn ${currentView === 'profileView' ? 'active' : ''}`} onClick={() => onSwitchView('profileView')}>Perfil</button>}
           {!isAdmin && <button className={`btn nav-btn ${currentView === 'cartView' ? 'active' : ''}`} onClick={() => onSwitchView('cartView')}>Carrinho</button>}
           {!isAdmin && <button className={`btn nav-btn ${currentView === 'checkoutView' ? 'active' : ''}`} onClick={() => onSwitchView('checkoutView')}>Checkout</button>}
           {isAdmin && <button className={`btn nav-btn ${currentView === 'adminView' ? 'active' : ''}`} onClick={() => onSwitchView('adminView')}>Admin</button>}

@@ -1,8 +1,9 @@
 import type { Dispatch, FormEvent, SetStateAction } from 'react';
-import type { AdminTab, AdminUser, AuthState, Game, GameForm, Genre, LibraryItem, Profile } from '../../types';
+import type { AdminTab, AdminUser, AuthState, Game, GameForm, GameRestriction, GameRestrictionForm, Genre, LibraryItem, Profile } from '../../types';
 import * as api from '../../services';
 import { emptyGameForm } from '../../config/app';
 import { gamePayloadFromForm, syncDiscountForm } from '../../domain/gameForm';
+import { expiresAtForDuration, restrictionTypeLabel } from '../../domain/restrictions';
 import { formatMoney, hasGameDiscount } from '../../utils';
 
 export function useAdminActions({
@@ -12,7 +13,10 @@ export function useAdminActions({
   setAdminTab,
   adminLibraryItems,
   setAdminLibraryItems,
+  setAdminGameRestrictions,
   addGameId,
+  restrictionForm,
+  setRestrictionForm,
   gameForm,
   setGameForm,
   editingGameId,
@@ -30,7 +34,10 @@ export function useAdminActions({
   setAdminTab: (tab: AdminTab) => void;
   adminLibraryItems: LibraryItem[];
   setAdminLibraryItems: Dispatch<SetStateAction<LibraryItem[]>>;
+  setAdminGameRestrictions: Dispatch<SetStateAction<GameRestriction[]>>;
   addGameId: string;
+  restrictionForm: GameRestrictionForm;
+  setRestrictionForm: Dispatch<SetStateAction<GameRestrictionForm>>;
   gameForm: GameForm;
   setGameForm: Dispatch<SetStateAction<GameForm>>;
   editingGameId: number | null;
@@ -45,9 +52,14 @@ export function useAdminActions({
   async function selectAdminUser(userId: string) {
     setSelectedAdminUserId(userId);
     setAdminTab('library');
-    const { data, error } = await api.fetchUserLibrary(userId);
-    if (error) return showToast(error.message);
-    setAdminLibraryItems(data || []);
+    const [libraryRes, restrictionsRes] = await Promise.all([
+      api.fetchUserLibrary(userId),
+      api.fetchUserGameRestrictions(userId)
+    ]);
+    if (libraryRes.error) return showToast(libraryRes.error.message);
+    if (restrictionsRes.error) return showToast(restrictionsRes.error.message);
+    setAdminLibraryItems(libraryRes.data || []);
+    setAdminGameRestrictions(restrictionsRes.data || []);
     showToast('Usuário carregado para gestão.');
   }
 
@@ -121,6 +133,65 @@ export function useAdminActions({
     await selectAdminUser(selectedAdminUserId);
     await refreshAll();
     showToast('Jogo removido da biblioteca.');
+  }
+
+  async function applyGameRestriction() {
+    const gameId = Number(restrictionForm.gameId);
+    const reason = restrictionForm.reason.trim();
+
+    if (!selectedAdminUserId) return showToast('Seleciona um usuário antes de moderar jogo.');
+    if (!gameId) return showToast('Seleciona um jogo para aplicar a restrição.');
+    if (!reason) return showToast('Escreve o motivo da restrição.');
+
+    const restrictionType = restrictionForm.type;
+    const expiresAt = restrictionType === 'temporary_ban'
+      ? expiresAtForDuration(restrictionForm.duration)
+      : null;
+
+    if (restrictionType !== 'warning') {
+      const revokeRes = await api.revokeActiveGameBans(selectedAdminUserId, gameId, auth.user?.id || null);
+      if (revokeRes.error) return showToast(revokeRes.error.message);
+    }
+
+    const { error } = await api.createGameRestriction({
+      user_id: selectedAdminUserId,
+      game_id: gameId,
+      restriction_type: restrictionType,
+      reason,
+      expires_at: expiresAt,
+      created_by: auth.user?.id || null
+    });
+    if (error) return showToast(error.message);
+
+    if (auth.user) {
+      await api.addAdminLog({
+        admin_id: auth.user.id,
+        action: `game_${restrictionType}`,
+        target_user_id: selectedAdminUserId,
+        target_game_id: gameId,
+        details: { reason, expires_at: expiresAt }
+      });
+    }
+
+    setRestrictionForm(current => ({ ...current, reason: '' }));
+    await selectAdminUser(selectedAdminUserId);
+    showToast(`${restrictionTypeLabel(restrictionType)} aplicado ao jogo.`);
+  }
+
+  async function revokeGameRestriction(restriction: GameRestriction) {
+    const { error } = await api.revokeGameRestriction(restriction.id, auth.user?.id || null);
+    if (error) return showToast(error.message);
+    if (auth.user) {
+      await api.addAdminLog({
+        admin_id: auth.user.id,
+        action: 'revoke_game_restriction',
+        target_user_id: restriction.user_id,
+        target_game_id: Number(restriction.game_id),
+        details: { restriction_id: restriction.id, type: restriction.restriction_type }
+      });
+    }
+    await selectAdminUser(restriction.user_id);
+    showToast('Restrição revogada.');
   }
 
   function startEditGame(game: Game) {
@@ -225,6 +296,8 @@ export function useAdminActions({
     toggleUserRole,
     adminAddGame,
     adminRemoveGame,
+    applyGameRestriction,
+    revokeGameRestriction,
     startEditGame,
     resetGameForm,
     submitGameForm,

@@ -12,7 +12,7 @@ export function CartView({ games, subtotal, fee, onStore, onCheckout, onRemove, 
 }) {
   return (
     <section className="view active">
-      <div className="container page-shell">
+      <div className="container-xxl page-shell">
         <div className="page-header d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-end gap-3">
           <div>
             <span className="kicker">Etapa 1</span>

@@ -42,7 +42,9 @@ export function useAuthActions({
     setLoginForm({ email: '', password: '' });
     const profile = await refreshAll();
     if (profile?.role === 'admin') switchView('adminView');
-    showToast('Login concluído com sucesso.');
+    showToast(profile?.status === 'blocked'
+      ? 'Conta bloqueada. Você pode comprar, mas não pode jogar até um admin reativar.'
+      : 'Login concluído com sucesso.');
   }
 
   async function handleRegister(event: FormEvent) {

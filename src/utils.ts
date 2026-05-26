@@ -20,6 +20,24 @@ export function genreLabel(value: string) {
   return genres.find(genre => genre.value === value)?.label || value.replace('-', ' ');
 }
 
+export function formatPlayTime(minutes: number) {
+  const total = Math.max(0, Math.floor(Number(minutes) || 0));
+  if (total < 60) return `${total} min`;
+  const hours = Math.floor(total / 60);
+  const rest = total % 60;
+  return rest ? `${hours}h ${rest}min` : `${hours}h`;
+}
+
+export function formatShortDate(value: string | null | undefined) {
+  if (!value) return 'Nunca jogado';
+  return new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(new Date(value));
+}
+
 export function hasGameDiscount(game: Game) {
   return Number(game.discount || 0) > 0 && Number(game.old_price || 0) > Number(game.price || 0);
 }
