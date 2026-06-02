@@ -18,7 +18,7 @@ export function AdminView(props: AdminViewProps) {
             <h1>Dashboard administrativo</h1>
             <p>Admin gere usuários, jogos, bibliotecas, carrossel e oferta principal. Admin não compra nem favorita.</p>
           </div>
-          <button className="btn ghost-btn" onClick={props.onStore}>Voltar para loja</button>
+          <button className="btn btn-outline-light" onClick={props.onStore}>Voltar para loja</button>
         </div>
 
         <AdminKpis allUsers={props.allUsers} games={props.games} />

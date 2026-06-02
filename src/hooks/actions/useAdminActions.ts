@@ -1,10 +1,9 @@
-import type { Dispatch, FormEvent, SetStateAction } from 'react';
-import type { AdminTab, AdminUser, AuthState, Game, GameForm, GameRestriction, GameRestrictionForm, Genre, LibraryItem, Profile } from '../../types';
+import type { Dispatch, SetStateAction } from 'react';
+import type { AdminTab, AdminUser, AuthState, GameForm, GameRestriction, GameRestrictionForm, LibraryItem, Profile } from '../../types';
 import * as api from '../../services';
-import { emptyGameForm } from '../../config/app';
-import { gamePayloadFromForm, syncDiscountForm } from '../../domain/gameForm';
 import { expiresAtForDuration, restrictionTypeLabel } from '../../domain/restrictions';
-import { formatMoney, hasGameDiscount } from '../../utils';
+import { useAdminCatalogActions } from './admin/useAdminCatalogActions';
+import { useAdminStoreSettingsActions } from './admin/useAdminStoreSettingsActions';
 
 export function useAdminActions({
   auth,
@@ -49,6 +48,25 @@ export function useAdminActions({
   refreshAll: () => Promise<Profile | null>;
   showToast: (message: string) => void;
 }) {
+  const catalogActions = useAdminCatalogActions({
+    auth,
+    gameForm,
+    setGameForm,
+    editingGameId,
+    setEditingGameId,
+    savingGame,
+    setSavingGame,
+    refreshAll,
+    showToast
+  });
+  const storeSettingsActions = useAdminStoreSettingsActions({
+    auth,
+    carouselForm,
+    promoForm,
+    refreshAll,
+    showToast
+  });
+
   async function selectAdminUser(userId: string) {
     setSelectedAdminUserId(userId);
     setAdminTab('library');
@@ -194,102 +212,6 @@ export function useAdminActions({
     showToast('Restrição revogada.');
   }
 
-  function startEditGame(game: Game) {
-    const discounted = hasGameDiscount(game);
-    setEditingGameId(Number(game.id));
-    setGameForm({
-      title: game.title || '',
-      franchise: game.franchise || '',
-      genre: (game.genre || 'acao-aventura') as Genre,
-      price: formatMoney(Number(game.price || 0)),
-      oldPrice: discounted ? formatMoney(Number(game.old_price || game.price || 0)) : '',
-      discount: discounted ? String(Number(game.discount || 0)) : '',
-      hasDiscount: discounted,
-      featured: !!game.featured,
-      tags: Array.isArray(game.tags) ? game.tags.join(', ') : '',
-      description: game.description || ''
-    });
-    showToast('Jogo carregado para edição.');
-  }
-
-  function resetGameForm() {
-    setEditingGameId(null);
-    setGameForm(emptyGameForm);
-  }
-
-  async function submitGameForm(event: FormEvent) {
-    event.preventDefault();
-    if (savingGame) return;
-    setSavingGame(true);
-    try {
-      const payload = gamePayloadFromForm(gameForm);
-      if (editingGameId !== null) {
-        const { error } = await api.updateGame(editingGameId, payload);
-        if (error) return showToast(error.message);
-        showToast('Jogo atualizado com sucesso.');
-      } else {
-        const { error } = await api.createGame(payload);
-        if (error) return showToast(error.message);
-        showToast('Jogo salvo no banco.');
-      }
-      resetGameForm();
-      await refreshAll();
-    } catch (error) {
-      showToast(error instanceof Error ? error.message : 'Erro ao salvar jogo.');
-    } finally {
-      setSavingGame(false);
-    }
-  }
-
-  async function deleteCatalogGame(game: Game) {
-    if (!window.confirm(`Remover "${game.title}" do catálogo?`)) return;
-    const relRes = await api.deleteGameRelations(Number(game.id));
-    if (relRes.error) return showToast(relRes.error.message);
-    const { error } = await api.deleteGame(Number(game.id));
-    if (error) return showToast(error.message);
-    if (auth.user) {
-      await api.addAdminLog({
-        admin_id: auth.user.id,
-        action: 'delete_catalog_game',
-        target_game_id: Number(game.id),
-        details: { title: game.title }
-      });
-    }
-    if (editingGameId === Number(game.id)) resetGameForm();
-    await refreshAll();
-    showToast('Jogo removido do catálogo.');
-  }
-
-  async function saveCarousel() {
-    const ids = carouselForm.map(Number).filter(Boolean);
-    const { error } = await api.saveStoreSetting('carousel', ids);
-    if (error) return showToast(error.message);
-    if (auth.user) {
-      await api.addAdminLog({ admin_id: auth.user.id, action: 'save_carousel', details: { carousel: ids } });
-    }
-    await refreshAll();
-    showToast('Carrossel atualizado.');
-  }
-
-  async function savePromo() {
-    const titleRes = await api.saveStoreSetting('promo_title', promoForm.title.trim());
-    if (titleRes.error) return showToast(titleRes.error.message);
-    const textRes = await api.saveStoreSetting('promo_text', promoForm.text.trim());
-    if (textRes.error) return showToast(textRes.error.message);
-    if (auth.user) {
-      await api.addAdminLog({ admin_id: auth.user.id, action: 'save_promo', details: promoForm });
-    }
-    await refreshAll();
-    showToast('Oferta atualizada.');
-  }
-
-  function updateGameForm(next: Partial<GameForm>, source?: 'toggle' | 'price' | 'old' | 'discount') {
-    setGameForm(current => {
-      const merged = { ...current, ...next };
-      return source ? syncDiscountForm(merged, source) : merged;
-    });
-  }
-
   return {
     selectAdminUser,
     toggleUserStatus,
@@ -298,12 +220,7 @@ export function useAdminActions({
     adminRemoveGame,
     applyGameRestriction,
     revokeGameRestriction,
-    startEditGame,
-    resetGameForm,
-    submitGameForm,
-    deleteCatalogGame,
-    saveCarousel,
-    savePromo,
-    updateGameForm
+    ...catalogActions,
+    ...storeSettingsActions
   };
 }

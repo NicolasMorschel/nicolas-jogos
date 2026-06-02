@@ -51,3 +51,25 @@
 .saved-card-item small {
   color:#62708a;
 }
+
+.clean-panel { background: linear-gradient(180deg,#f4f7fb,#ecf2f8); color:#1d283c; }
+.clean-panel h3, .clean-summary h3 { color:#1d283c; }
+.clean-summary { background: linear-gradient(180deg,#ffffff,#eef3f8); color:#1d283c; }
+.clean-summary .summary-list > div { color:#52617b; }
+.checkout-clean .form-control,
+.checkout-clean .form-select {
+  background:rgba(255,255,255,.9);
+  color:#1d283c;
+  border:1px solid rgba(15,23,42,.08);
+}
+.checkout-clean .form-control::placeholder {
+  color:#6b7890;
+  opacity:1;
+}
+.checkout-clean .form-control:disabled,
+.checkout-clean .form-select:disabled {
+  background:rgba(226,232,240,.85);
+  color:#738098;
+  -webkit-text-fill-color:#738098;
+}
+.checkout-clean .btn-primary { background:linear-gradient(135deg,#2759ea,#4d7cff); }

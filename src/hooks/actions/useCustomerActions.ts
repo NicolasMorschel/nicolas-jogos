@@ -9,6 +9,7 @@ export function useCustomerActions({
   isLoggedIn,
   cartIds,
   favoriteIds,
+  libraryIds,
   cardForm,
   setCardForm,
   paymentMethod,
@@ -27,6 +28,7 @@ export function useCustomerActions({
   isLoggedIn: boolean;
   cartIds: number[];
   favoriteIds: number[];
+  libraryIds: number[];
   cardForm: CardForm;
   setCardForm: Dispatch<SetStateAction<CardForm>>;
   paymentMethod: PaymentMethod;
@@ -52,6 +54,7 @@ export function useCustomerActions({
   async function addToCart(gameId: number) {
     if (isAdmin) return showToast('Administrador não compra jogos.');
     if (!isLoggedIn || !auth.user) return showToast('Faz login antes de comprar.');
+    if (libraryIds.includes(gameId)) return showToast('Esse jogo ja esta na tua biblioteca.');
     if (cartIds.includes(gameId)) return showToast('Esse jogo já está no carrinho.');
     const { error } = await api.insertCart(auth.user.id, gameId);
     if (error) return showToast(error.message);
@@ -64,6 +67,18 @@ export function useCustomerActions({
     const { error } = await api.deleteCart(auth.user.id, gameId);
     if (error) return showToast(error.message);
     await refreshAll();
+  }
+
+  async function moveCartItemToFavorites(gameId: number) {
+    if (!auth.user) return showToast('Faz login antes de salvar para depois.');
+    if (!favoriteIds.includes(gameId)) {
+      const favoriteRes = await api.insertFavorite(auth.user.id, gameId);
+      if (favoriteRes.error) return showToast(favoriteRes.error.message);
+    }
+    const cartRes = await api.deleteCart(auth.user.id, gameId);
+    if (cartRes.error) return showToast(cartRes.error.message);
+    await refreshAll();
+    showToast('Jogo salvo nos favoritos.');
   }
 
   async function clearCart() {
@@ -147,5 +162,5 @@ export function useCustomerActions({
     showToast(paymentMethod === 'pix' ? 'Pagamento Pix confirmado.' : 'Compra aprovada.');
   }
 
-  return { toggleFavorite, addToCart, removeFromCart, clearCart, finishPurchase };
+  return { toggleFavorite, addToCart, moveCartItemToFavorites, removeFromCart, clearCart, finishPurchase };
 }

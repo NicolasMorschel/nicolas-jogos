@@ -17,9 +17,9 @@ export function AdminKpis({ allUsers, games }: Pick<AdminViewProps, 'allUsers' |
 
 export function AdminTabs({ adminTab, setAdminTab }: { adminTab: AdminTab; setAdminTab: (tab: AdminTab) => void }) {
   return (
-    <div className="admin-tabs">
+    <div className="nav nav-pills admin-tabs" role="tablist" aria-label="Seções do admin">
       {adminTabs.map(tab => (
-        <button key={tab} className={`btn admin-tab-btn ${adminTab === tab ? 'active' : ''}`} onClick={() => setAdminTab(tab)}>
+        <button key={tab} className={`btn nav-link admin-tab-btn ${adminTab === tab ? 'active' : ''}`} type="button" onClick={() => setAdminTab(tab)}>
           {tab === 'users' ? 'Usuários' : tab === 'library' ? 'Biblioteca' : tab === 'catalog' ? 'Catálogo' : 'Home'}
         </button>
       ))}
@@ -30,7 +30,7 @@ export function AdminTabs({ adminTab, setAdminTab }: { adminTab: AdminTab; setAd
 function AdminKpi({ label, value }: { label: string; value: number }) {
   return (
     <div className="col">
-      <article className="admin-kpi h-100"><span>{label}</span><strong>{value}</strong></article>
+      <article className="card admin-kpi h-100"><span>{label}</span><strong>{value}</strong></article>
     </div>
   );
 }

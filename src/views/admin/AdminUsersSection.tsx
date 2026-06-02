@@ -14,7 +14,7 @@ export function AdminUsersSection(props: Pick<
   | 'onSelectUser'
 >) {
   return (
-    <section className="page-panel admin-card">
+    <section className="card page-panel admin-card">
       <div className="admin-card-head">
         <div>
           <span className="kicker">Usuários</span>
@@ -44,7 +44,7 @@ export function AdminUsersSection(props: Pick<
 
       <div className="admin-mobile-users d-lg-none">
         {props.users.length ? props.users.map(user => (
-          <button key={user.id} className={`btn admin-mobile-user-card ${props.selectedUserId === user.id ? 'active' : ''}`} onClick={() => props.onSelectUser(user.id)}>
+          <button key={user.id} className={`btn card admin-mobile-user-card ${props.selectedUserId === user.id ? 'active' : ''}`} onClick={() => props.onSelectUser(user.id)}>
             <span>
               <strong>{user.name || 'Sem nome'}</strong>
               <small>{user.email}</small>
@@ -99,7 +99,7 @@ export function AdminUsersSection(props: Pick<
                 <td className="admin-cell-actions">
                   <button
                     type="button"
-                    className="btn primary-btn"
+                    className="btn btn-primary"
                     onClick={event => {
                       event.stopPropagation();
                       props.onSelectUser(user.id);

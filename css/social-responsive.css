@@ -1,0 +1,100 @@
+@media (max-width: 991.98px) {
+  .social-app-frame {
+    overflow:visible;
+  }
+
+  .social-server-dock {
+    width:100%;
+    border-right:0;
+    border-bottom:1px solid var(--line);
+  }
+
+  .social-channel-sidebar {
+    border-right:0;
+    border-bottom:1px solid var(--line);
+  }
+
+  .social-member-panel {
+    border-left:0;
+    border-top:1px solid var(--line);
+  }
+
+  .social-chat-stage,
+  .social-channel-sidebar,
+  .social-member-panel {
+    flex:0 0 100%;
+    width:100%;
+    max-width:100%;
+  }
+
+  .social-app-frame {
+    height:auto;
+    min-height:auto;
+  }
+
+  .social-chat-stage {
+    min-height:680px;
+  }
+
+  .social-message-stream {
+    min-height:0;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .social-chat-stage {
+    min-height:calc(100vh - 24px);
+  }
+
+  .social-message-stream {
+    max-height:calc(100vh - 220px);
+  }
+
+  .social-composer {
+    padding-right:8px!important;
+    padding-left:8px!important;
+  }
+
+  .chat-message-card {
+    max-width:calc(100% - 48px);
+  }
+
+  .chat-bubble-pro.mine .chat-message-card {
+    max-width:92%;
+  }
+
+  .chat-media-preview {
+    max-width:100%;
+    max-height:260px;
+  }
+
+  .social-composer-bar {
+    border-radius:16px;
+  }
+
+  .social-send-btn {
+    min-width:100%;
+    border-top:1px solid rgba(255,255,255,.08);
+  }
+
+  .voice-note-player,
+  .voice-note-player.compact {
+    grid-template-columns:auto minmax(0,1fr) auto;
+    min-width:0;
+  }
+
+  .server-public-note,
+  .server-join-banner,
+  .public-server-row,
+  .social-management-row,
+  .server-danger-zone {
+    align-items:stretch;
+    flex-direction:column;
+  }
+
+  .voice-live-members {
+    justify-content:flex-start;
+    min-width:0;
+  }
+}
+

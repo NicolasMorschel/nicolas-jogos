@@ -18,7 +18,7 @@ export function AdminCatalogSection(props: Pick<
   return (
     <div className="admin-bottom-grid row g-3">
       <div className="col-12 col-xl-6">
-        <section className="page-panel admin-card h-100">
+        <section className="card page-panel admin-card h-100">
           <div className="admin-card-head">
             <div>
               <span className="kicker">Catálogo</span>
@@ -26,7 +26,7 @@ export function AdminCatalogSection(props: Pick<
               <p className="admin-help">{props.editingGameId !== null ? `Editando jogo ID ${props.editingGameId}` : 'Preenche os dados para cadastrar um novo jogo.'}</p>
             </div>
           </div>
-          <form className="form-grid" onSubmit={props.submitGameForm}>
+          <form className="d-grid gap-3" onSubmit={props.submitGameForm}>
             <FormInput value={props.gameForm.title} onChange={event => props.updateGameForm({ title: event.target.value })} placeholder="Título do jogo" />
             <FormInput value={props.gameForm.franchise} onChange={event => props.updateGameForm({ franchise: event.target.value })} placeholder="Franquia" />
             <FormSelect value={props.gameForm.genre} onChange={event => props.updateGameForm({ genre: event.target.value as Genre })}>
@@ -55,15 +55,15 @@ export function AdminCatalogSection(props: Pick<
             </CheckboxField>
             <FormInput value={props.gameForm.tags} onChange={event => props.updateGameForm({ tags: event.target.value })} placeholder="Tags separadas por vírgula" />
             <FormTextarea value={props.gameForm.description} onChange={event => props.updateGameForm({ description: event.target.value })} placeholder="Descrição do jogo" />
-            <div className="stack-actions">
-              <button className="btn primary-btn" disabled={props.savingGame}>{props.savingGame ? 'Salvando...' : props.editingGameId !== null ? 'Salvar alterações' : 'Adicionar jogo'}</button>
-              {props.editingGameId !== null && <button className="btn ghost-btn" type="button" onClick={props.resetGameForm}>Cancelar edição</button>}
+            <div className="d-flex flex-wrap align-items-center gap-2">
+              <button className="btn btn-primary" disabled={props.savingGame}>{props.savingGame ? 'Salvando...' : props.editingGameId !== null ? 'Salvar alterações' : 'Adicionar jogo'}</button>
+              {props.editingGameId !== null && <button className="btn btn-outline-light" type="button" onClick={props.resetGameForm}>Cancelar edição</button>}
             </div>
           </form>
         </section>
       </div>
       <div className="col-12 col-xl-6">
-        <section className="page-panel admin-card h-100">
+        <section className="card page-panel admin-card h-100">
           <div className="admin-card-head">
             <div>
               <span className="kicker">Catálogo</span>
@@ -73,19 +73,19 @@ export function AdminCatalogSection(props: Pick<
           </div>
           <div className="admin-library-list">
             {props.games.length ? props.games.map(game => (
-              <div className="admin-lib-item row g-3 align-items-center" key={game.id}>
+              <div className="card admin-lib-item row g-3 align-items-center" key={game.id}>
                 <div className="col-12 col-md">
                   <strong>{game.title}</strong>
                   <div className="admin-user-meta">{game.franchise} • {genreLabel(game.genre)} • {brl(game.price)} • {game.featured ? 'Destaque' : 'Normal'}</div>
                 </div>
                 <div className="col-12 col-md-auto">
                   <div className="admin-item-actions d-grid d-sm-flex justify-content-sm-end">
-                    <button className="btn ghost-btn" onClick={() => props.onEditGame(game)}>Editar</button>
-                    <button className="btn ghost-btn" onClick={() => props.onDeleteGame(game)}>Remover</button>
+                    <button className="btn btn-outline-light" onClick={() => props.onEditGame(game)}>Editar</button>
+                    <button className="btn btn-outline-light" onClick={() => props.onDeleteGame(game)}>Remover</button>
                   </div>
                 </div>
               </div>
-            )) : <div className="admin-lib-item">Nenhum jogo cadastrado no catálogo.</div>}
+            )) : <div className="card admin-lib-item">Nenhum jogo cadastrado no catálogo.</div>}
           </div>
         </section>
       </div>

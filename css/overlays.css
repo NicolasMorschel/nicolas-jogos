@@ -1,6 +1,6 @@
-.modal { position:fixed; inset:0; display:none; align-items:center; justify-content:center; padding:18px; background:rgba(5,8,14,.7); z-index:4000; backdrop-filter: blur(6px); }
-.modal.show { display:flex; }
-.modal-card { width:min(100%, 480px); padding:24px; background:rgba(12,18,32,.96); border:1px solid var(--line); border-radius:26px; box-shadow:var(--shadow); }
+.app-modal { background:rgba(5,8,14,.7); z-index:4000; backdrop-filter: blur(6px); }
+.app-modal .modal-dialog { width:min(100% - 24px, 860px); }
+.modal-card { padding:24px; background:rgba(12,18,32,.96); border:1px solid var(--line); border-radius:26px; box-shadow:var(--shadow); }
 .small-card { max-width:440px; }
 .game-modal-card { max-width:860px; width:min(100%,860px); }
 .modal-head { display:flex; justify-content:space-between; align-items:start; gap:12px; margin-bottom:18px; }

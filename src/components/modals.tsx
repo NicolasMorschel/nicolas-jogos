@@ -20,7 +20,7 @@ export function LoginModal({
 }) {
   return (
     <Modal open={open} onClose={onClose}>
-      <form className="modal-card small-card" onSubmit={onSubmit}>
+      <form className="modal-content modal-card small-card" onSubmit={onSubmit}>
         <div className="modal-head">
           <div>
             <h3>Entrar na conta</h3>
@@ -28,10 +28,10 @@ export function LoginModal({
           </div>
           <button className="btn close" type="button" onClick={onClose}>×</button>
         </div>
-        <div className="form-grid">
+        <div className="d-grid gap-3">
           <FormInput value={form.email} onChange={event => setForm({ ...form, email: event.target.value })} type="email" placeholder="Seu e-mail" />
           <FormInput value={form.password} onChange={event => setForm({ ...form, password: event.target.value })} type="password" placeholder="Sua senha" />
-          <button className="btn primary-btn full">Entrar</button>
+          <button className="btn btn-primary w-100">Entrar</button>
         </div>
       </form>
     </Modal>
@@ -59,7 +59,7 @@ export function RegisterModal({
 }) {
   return (
     <Modal open={open} onClose={onClose}>
-      <form className="modal-card small-card" onSubmit={onSubmit}>
+      <form className="modal-content modal-card small-card" onSubmit={onSubmit}>
         <div className="modal-head">
           <div>
             <h3>Criar conta</h3>
@@ -67,7 +67,7 @@ export function RegisterModal({
           </div>
           <button className="btn close" type="button" onClick={onClose}>×</button>
         </div>
-        <div className="form-grid">
+        <div className="d-grid gap-3">
           <FormInput value={form.name} onChange={event => setForm({ ...form, name: event.target.value })} type="text" placeholder="Seu nome" />
           <FormInput value={form.email} onChange={event => setForm({ ...form, email: event.target.value })} type="email" placeholder="Seu e-mail" />
           <FormInput value={form.password} onChange={event => setForm({ ...form, password: event.target.value })} type="password" placeholder="Crie uma senha forte" />
@@ -78,7 +78,7 @@ export function RegisterModal({
             </div>
             <p className="helper">{form.password ? `Segurança da senha: ${scoreLabels[score]}` : 'Digite uma senha para analisar.'}</p>
           </div>
-          <button className="btn primary-btn full">Criar conta</button>
+          <button className="btn btn-primary w-100">Criar conta</button>
         </div>
       </form>
     </Modal>
@@ -103,7 +103,7 @@ export function GameModal({
   return (
     <Modal open={!!game} onClose={onClose}>
       {game && (
-        <div className="modal-card game-modal-card">
+        <div className="modal-content modal-card game-modal-card">
           <div className="modal-head">
             <div>
               <h3>{game.title}</h3>
@@ -121,15 +121,15 @@ export function GameModal({
               </div>
             </div>
             <div className="col-12 col-lg-6">
-              <div className="form-grid">
+              <div className="d-grid gap-3">
                 <p>{game.description}</p>
                 <TagList tags={game.tags} />
                 <PriceGroup game={game} />
-                <div className="stack-actions">
-                  <button className={`btn ghost-btn ${isAdmin ? 'disabled-btn' : ''}`} disabled={isAdmin} onClick={onFavorite}>
+                <div className="d-flex flex-wrap align-items-center gap-2">
+                  <button className={`btn btn-outline-light ${isAdmin ? 'disabled-btn' : ''}`} disabled={isAdmin} onClick={onFavorite}>
                     {isAdmin ? 'Somente pelo painel admin' : isFavorite ? 'Remover favorito' : 'Favoritar'}
                   </button>
-                  <button className="btn primary-btn" onClick={onBuy}>
+                  <button className="btn btn-primary" onClick={onBuy}>
                     {isAdmin ? 'Ir para o Admin' : 'Adicionar ao carrinho'}
                   </button>
                 </div>
@@ -149,7 +149,7 @@ export function PurchaseSuccess({ onLibrary }: { onLibrary: () => void }) {
         <div className="purchase-success-icon">✓</div>
         <h3>Compra realizada</h3>
         <p>Seus jogos foram enviados para a biblioteca.</p>
-        <button className="btn primary-btn" onClick={onLibrary}>Ir para biblioteca</button>
+        <button className="btn btn-primary" onClick={onLibrary}>Ir para biblioteca</button>
       </div>
     </div>
   );

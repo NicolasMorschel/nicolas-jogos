@@ -18,7 +18,7 @@ export type GameRestrictionType = 'warning' | 'temporary_ban' | 'permanent_ban';
 export type GameRestrictionDuration = '24h' | '7d' | '30d';
 export type LibraryDisplayMode = 'cards' | 'table';
 export type FriendshipStatus = 'pending' | 'accepted' | 'rejected' | 'blocked';
-export type ProfileTab = 'overview' | 'edit' | 'friends' | 'reports';
+export type ProfileTab = 'overview' | 'library' | 'favorites' | 'friends' | 'restrictions' | 'edit';
 export type SocialSpace = 'direct' | 'group' | 'server';
 export type ChatConversationType = 'direct' | 'group' | 'server_channel';
 export type ChatAttachmentType = 'none' | 'image' | 'video' | 'audio' | 'file';
@@ -108,6 +108,14 @@ export type UserReport = {
   created_at: string;
 };
 
+export type ProfileComment = {
+  id: number;
+  profile_id: string;
+  author_id: string;
+  body: string;
+  created_at: string;
+};
+
 export type GamePlayStats = {
   user_id: string;
   game_id: number;
@@ -124,12 +132,36 @@ export type ChatMessage = {
   conversation_type: ChatConversationType;
   group_id: number | null;
   server_channel_id: number | null;
+  reply_to_message_id: number | null;
   body: string;
   attachment_url: string;
   attachment_type: ChatAttachmentType;
   attachment_name: string;
   created_at: string;
   read_at: string | null;
+};
+
+export type ChatMessageReaction = {
+  id: number;
+  message_id: number;
+  user_id: string;
+  emoji: string;
+  created_at: string;
+};
+
+export type ChatMessagePin = {
+  message_id: number;
+  pinned_by: string;
+  created_at: string;
+};
+
+export type ChatMessageReport = {
+  id: number;
+  message_id: number;
+  reporter_id: string;
+  reason: string;
+  status: 'open' | 'reviewed' | 'dismissed';
+  created_at: string;
 };
 
 export type ChatGroup = {
@@ -174,6 +206,7 @@ export type CommunityRole = {
   can_manage_server: boolean;
   can_manage_channels: boolean;
   can_manage_roles: boolean;
+  can_moderate_voice?: boolean;
   created_at: string;
 };
 

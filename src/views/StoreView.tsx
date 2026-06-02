@@ -72,9 +72,9 @@ export function StoreView({
                           {hasGameDiscount(game) && <span className="discount-box">-{game.discount}%</span>}
                           <span>{brl(game.price)}</span>
                         </div>
-                        <div className="stack-actions" style={{ marginTop: 18 }}>
-                          <button className="btn primary-btn" onClick={() => onOpenGame(game.id)}>Ver jogo</button>
-                          <button className="btn ghost-btn" onClick={() => (isAdmin ? onSwitchView('adminView') : onBuyGame(game.id))}>
+                        <div className="d-flex flex-wrap align-items-center gap-2" style={{ marginTop: 18 }}>
+                          <button className="btn btn-primary" onClick={() => onOpenGame(game.id)}>Ver jogo</button>
+                          <button className="btn btn-outline-light" onClick={() => (isAdmin ? onSwitchView('adminView') : onBuyGame(game.id))}>
                             {isAdmin ? 'Gerenciar' : 'Adicionar'}
                           </button>
                         </div>
@@ -93,15 +93,15 @@ export function StoreView({
             </div>
 
             <aside className="col-12 col-xl-4 hero-side">
-              <div className="side-panel promo-panel">
+              <div className="card side-panel promo-panel">
                 <span className="kicker">Oferta principal</span>
                 <h3>{storeConfig.promo_title}</h3>
                 <p>{storeConfig.promo_text}</p>
-                <button className="btn primary-btn full" onClick={() => document.getElementById('catalogBlock')?.scrollIntoView({ behavior: 'smooth' })}>
+                <button className="btn btn-primary w-100" onClick={() => document.getElementById('catalogBlock')?.scrollIntoView({ behavior: 'smooth' })}>
                   Ir para catálogo
                 </button>
               </div>
-              <div className="side-panel account-panel">
+              <div className="card side-panel account-panel">
                 <StatusRow label="Sessão" value={auth.profile?.name || 'Visitante'} />
                 <StatusRow label="Tipo" value={isAdmin ? 'Administrador' : 'Usuário'} />
                 {isLoggedIn && <StatusRow label="Status" value={auth.profile?.status === 'blocked' ? 'Bloqueada' : 'Ativa'} />}
@@ -123,7 +123,7 @@ export function StoreView({
           <div className="franchise-grid row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xxl-6 g-3">
             {franchises.map(franchise => (
               <div className="col" key={franchise.name}>
-                <article className="franchise-card h-100">
+                <article className="card franchise-card h-100">
                   <strong>{franchise.name}</strong>
                   <p>{franchise.count} jogo(s) no catálogo</p>
                 </article>
@@ -137,14 +137,14 @@ export function StoreView({
         <div className="container-xxl">
           <div className="row g-3 align-items-start">
             <aside className="col-12 col-xl-3 store-sidebar sticky-xl-top">
-              <div className="side-panel">
+              <div className="card side-panel">
                 <h4>Explorar</h4>
                 <FilterButton active={quickFilter === 'all'} onClick={() => setQuickFilter('all')}>Todos os jogos</FilterButton>
                 <FilterButton active={quickFilter === 'featured'} onClick={() => setQuickFilter('featured')}>Destaques</FilterButton>
                 <FilterButton active={quickFilter === 'discount'} onClick={() => setQuickFilter('discount')}>Maiores descontos</FilterButton>
                 {!isAdmin && <FilterButton active={quickFilter === 'favorites'} onClick={() => setQuickFilter('favorites')}>Favoritos</FilterButton>}
               </div>
-              <div className="side-panel">
+              <div className="card side-panel">
                 <h4>Gêneros</h4>
                 {genres.map(genre => (
                   <FilterButton key={genre.value} active={genreFilter === genre.value} onClick={() => setGenreFilter(genre.value)}>
@@ -180,6 +180,8 @@ export function StoreView({
                       game={game}
                       isAdmin={isAdmin}
                       isFavorite={favoriteIds.includes(game.id)}
+                      isOwned={libraryIds.includes(game.id)}
+                      isInCart={cartIds.includes(game.id)}
                       onFavorite={() => onToggleFavorite(game.id)}
                       onOpen={() => onOpenGame(game.id)}
                       onBuy={() => (isAdmin ? onSwitchView('adminView') : onBuyGame(game.id))}
@@ -187,7 +189,7 @@ export function StoreView({
                   </div>
                 )) : (
                   <div className="col-12">
-                    <div className="page-panel">Nenhum jogo encontrado com esse filtro.</div>
+                    <div className="card page-panel">Nenhum jogo encontrado com esse filtro.</div>
                   </div>
                 )}
               </div>

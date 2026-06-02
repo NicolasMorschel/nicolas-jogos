@@ -5,6 +5,9 @@ import type {
   ChatGroup,
   ChatGroupMember,
   ChatMessage,
+  ChatMessagePin,
+  ChatMessageReaction,
+  ChatMessageReport,
   CommunityChannel,
   CommunityMemberRole,
   CommunityRole,
@@ -38,6 +41,9 @@ export function useAppData(showToast: (message: string) => void) {
   const [userReports, setUserReports] = useState<UserReport[]>([]);
   const [playStats, setPlayStats] = useState<GamePlayStats[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatMessageReactions, setChatMessageReactions] = useState<ChatMessageReaction[]>([]);
+  const [chatMessagePins, setChatMessagePins] = useState<ChatMessagePin[]>([]);
+  const [chatMessageReports, setChatMessageReports] = useState<ChatMessageReport[]>([]);
   const [chatGroups, setChatGroups] = useState<ChatGroup[]>([]);
   const [chatGroupMembers, setChatGroupMembers] = useState<ChatGroupMember[]>([]);
   const [communityServers, setCommunityServers] = useState<CommunityServer[]>([]);
@@ -90,6 +96,9 @@ export function useAppData(showToast: (message: string) => void) {
     let nextUserReports: UserReport[] = [];
     let nextPlayStats: GamePlayStats[] = [];
     let nextChatMessages: ChatMessage[] = [];
+    let nextChatMessageReactions: ChatMessageReaction[] = [];
+    let nextChatMessagePins: ChatMessagePin[] = [];
+    let nextChatMessageReports: ChatMessageReport[] = [];
     let nextChatGroups: ChatGroup[] = [];
     let nextChatGroupMembers: ChatGroupMember[] = [];
     let nextCommunityServers: CommunityServer[] = [];
@@ -121,6 +130,9 @@ export function useAppData(showToast: (message: string) => void) {
       nextUserReports = (userData.reportsRes.data || []) as UserReport[];
       nextPlayStats = (userData.playStatsRes.data || []) as GamePlayStats[];
       nextChatMessages = (userData.communicationRes.data?.chatMessages || []) as ChatMessage[];
+      nextChatMessageReactions = (userData.communicationRes.data?.chatMessageReactions || []) as ChatMessageReaction[];
+      nextChatMessagePins = (userData.communicationRes.data?.chatMessagePins || []) as ChatMessagePin[];
+      nextChatMessageReports = (userData.communicationRes.data?.chatMessageReports || []) as ChatMessageReport[];
       nextChatGroups = (userData.communicationRes.data?.chatGroups || []) as ChatGroup[];
       nextChatGroupMembers = (userData.communicationRes.data?.chatGroupMembers || []) as ChatGroupMember[];
       nextCommunityServers = (userData.communicationRes.data?.communityServers || []) as CommunityServer[];
@@ -151,6 +163,9 @@ export function useAppData(showToast: (message: string) => void) {
     setUserReports(nextUserReports);
     setPlayStats(nextPlayStats);
     setChatMessages(nextChatMessages);
+    setChatMessageReactions(nextChatMessageReactions);
+    setChatMessagePins(nextChatMessagePins);
+    setChatMessageReports(nextChatMessageReports);
     setChatGroups(nextChatGroups);
     setChatGroupMembers(nextChatGroupMembers);
     setCommunityServers(nextCommunityServers);
@@ -181,6 +196,9 @@ export function useAppData(showToast: (message: string) => void) {
     setUserReports([]);
     setPlayStats([]);
     setChatMessages([]);
+    setChatMessageReactions([]);
+    setChatMessagePins([]);
+    setChatMessageReports([]);
     setChatGroups([]);
     setChatGroupMembers([]);
     setCommunityServers([]);
@@ -236,6 +254,9 @@ export function useAppData(showToast: (message: string) => void) {
     userReports,
     playStats,
     chatMessages,
+    chatMessageReactions,
+    chatMessagePins,
+    chatMessageReports,
     chatGroups,
     chatGroupMembers,
     communityServers,

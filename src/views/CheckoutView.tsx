@@ -32,13 +32,13 @@ export function CheckoutView({ games, total, paymentMethod, setPaymentMethod, in
             <h1>Finalizar compra</h1>
             <p>Compra real salva na biblioteca e limpa o carrinho.</p>
           </div>
-          <button className="btn ghost-btn" onClick={onCart}>Voltar para carrinho</button>
+          <button className="btn btn-outline-light" onClick={onCart}>Voltar para carrinho</button>
         </div>
         <div className="row g-3 align-items-start checkout-clean">
           <div className="col-12 col-xl-8">
-            <div className="page-panel clean-panel">
+            <div className="card page-panel clean-panel">
               <h3>Dados do pagamento</h3>
-              <div className="form-grid checkout-form">
+              <div className="d-grid gap-3 checkout-form">
                 <div className="payment-switch row row-cols-1 row-cols-sm-3 g-2">
                   {(['pix', 'debito', 'credito'] as PaymentMethod[]).map(method => (
                     <div className="col" key={method}>
@@ -104,12 +104,12 @@ export function CheckoutView({ games, total, paymentMethod, setPaymentMethod, in
                   </div>
                 )}
 
-                <button className="btn primary-btn full" onClick={onFinish}>Confirmar compra</button>
+                <button className="btn btn-primary w-100" onClick={onFinish}>Confirmar compra</button>
               </div>
             </div>
           </div>
           <div className="col-12 col-xl-4">
-            <aside className="page-panel clean-summary summary-panel sticky-xl-top">
+            <aside className="card page-panel clean-summary summary-panel sticky-xl-top">
               <h3>Seu pedido</h3>
               <div className="checkout-items">
                 {games.length ? games.map(game => <div className="checkout-line" key={game.id}><span>{game.title}</span><strong>{brl(game.price)}</strong></div>) : <div className="checkout-line"><span>Nenhum item no pedido</span><strong>R$ 0,00</strong></div>}

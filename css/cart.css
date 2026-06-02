@@ -1,0 +1,10 @@
+.summary-panel { top:92px; }
+.summary-list { display:grid; gap:12px; margin:16px 0; }
+.summary-list > div { display:flex; justify-content:space-between; gap:10px; color:var(--muted); }
+.summary-list .total { color:var(--text); font-weight:800; font-size:1.05rem; }
+.cart-line, .checkout-line, .admin-lib-item {
+  padding:14px; border-radius:16px; border:1px solid rgba(255,255,255,.06); background:rgba(255,255,255,.04); margin-bottom:12px;
+}
+.cart-line, .checkout-line {
+  display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;
+}

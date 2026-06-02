@@ -1,0 +1,226 @@
+.social-workspace {
+  padding-top:14px;
+  padding-bottom:18px;
+}
+
+.social-app-frame {
+  height:calc(100vh - 118px);
+  min-height:560px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:22px;
+  background:#0d1524;
+  box-shadow:0 28px 90px rgba(0,0,0,.32);
+}
+
+.social-server-dock {
+  width:74px;
+  background:#080f1b;
+  border-right:1px solid var(--line);
+}
+
+.social-dock-home,
+.social-dock-server {
+  width:50px;
+  height:50px;
+  display:grid;
+  place-items:center;
+  border:0;
+  border-radius:18px;
+  background:#172235;
+  color:#dbe7ff;
+  font-weight:950;
+}
+
+.social-dock-home.active,
+.social-dock-server.active,
+.social-dock-home:hover,
+.social-dock-server:hover {
+  border-radius:15px;
+  background:linear-gradient(135deg,#5f86ff,#37d79a);
+  color:#fff;
+}
+
+.social-dock-divider {
+  width:34px;
+  height:1px;
+  background:rgba(255,255,255,.12);
+}
+
+.profile-dot {
+  width:36px;
+  height:36px;
+  flex:0 0 36px;
+  display:inline-grid;
+  place-items:center;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:50%;
+  background:linear-gradient(135deg,#5f86ff,#37d79a);
+  color:#fff;
+  font-size:.9rem;
+  font-weight:950;
+  line-height:1;
+}
+
+.profile-dot img {
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+}
+
+.profile-dot.large {
+  width:88px;
+  height:88px;
+  flex-basis:88px;
+  border-radius:18px;
+  font-size:1.6rem;
+}
+
+.social-channel-sidebar,
+.social-member-panel {
+  background:#111a2b;
+}
+
+.social-channel-sidebar {
+  height:100%;
+  max-height:100%;
+  min-height:0;
+  overflow:hidden;
+  border-right:1px solid var(--line);
+}
+
+.social-channel-sidebar > .flex-grow-1 {
+  min-height:0;
+}
+
+.social-member-panel {
+  border-left:1px solid var(--line);
+}
+
+.social-chat-stage {
+  height:100%;
+  min-height:0;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 20% 0%,rgba(77,124,255,.08),transparent 34%),
+    #0d1524;
+}
+
+.social-chat-header {
+  min-height:72px;
+  border-bottom:1px solid var(--line);
+  background:rgba(17,26,43,.82);
+}
+
+.social-channel-btn {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-height:40px;
+  border:0;
+  border-radius:10px;
+  color:#aebddb;
+  font-weight:850;
+}
+
+.social-channel-btn .profile-dot {
+  width:30px;
+  height:30px;
+  border-radius:10px;
+}
+
+.social-channel-btn span:first-child:not(.profile-dot) {
+  color:#7f8eaa;
+  font-weight:950;
+}
+
+.social-channel-btn.active,
+.social-channel-btn:hover {
+  background:rgba(122,162,255,.16);
+  color:#fff;
+}
+
+.social-tool-card,
+.social-settings-card {
+  --bs-card-bg: rgba(255,255,255,.035);
+  --bs-card-border-color: rgba(255,255,255,.08);
+  color:var(--text);
+  border-radius:16px;
+}
+
+.soft-empty,
+.muted-note {
+  padding:10px 12px;
+  border-radius:14px;
+  background:rgba(255,255,255,.035);
+  color:var(--muted);
+}
+
+.social-check-list {
+  display:grid;
+  gap:7px;
+  max-height:128px;
+  overflow:auto;
+}
+
+.social-check-list label {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:#cfe0ff;
+  font-weight:800;
+}
+
+.social-settings {
+  min-height:0;
+}
+
+.social-settings-nav {
+  background:rgba(8,15,27,.76);
+}
+
+.social-settings-content {
+  min-height:0;
+}
+
+.role-chip {
+  display:inline-flex;
+  align-items:center;
+  border:1px solid;
+  border-radius:999px;
+  padding:7px 10px;
+  background:rgba(255,255,255,.04);
+  font-weight:900;
+}
+
+.social-member-row {
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  align-items:center;
+  gap:10px;
+  width:100%;
+  border:0;
+  border-radius:12px;
+  color:#dce7ff;
+  background:transparent;
+}
+
+.social-member-row:hover {
+  background:rgba(255,255,255,.06);
+}
+
+.social-member-row strong,
+.social-member-row small {
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.social-member-row small {
+  color:#91a3c4;
+  font-weight:800;
+}
+

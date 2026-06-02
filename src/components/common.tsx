@@ -37,6 +37,9 @@ export function Header({
   currentView,
   isAdmin,
   isLoggedIn,
+  libraryCount = 0,
+  cartCount = 0,
+  favoriteCount = 0,
   searchTerm,
   onSearch,
   onSwitchView,
@@ -47,6 +50,9 @@ export function Header({
   currentView: ViewId;
   isAdmin: boolean;
   isLoggedIn: boolean;
+  libraryCount?: number;
+  cartCount?: number;
+  favoriteCount?: number;
   searchTerm: string;
   onSearch: (value: string) => void;
   onSwitchView: (view: ViewId) => void;
@@ -54,6 +60,9 @@ export function Header({
   onRegister: () => void;
   onLogout: () => void;
 }) {
+  const storeContext = !isAdmin && (!isLoggedIn || currentView === 'storeView' || currentView === 'libraryView' || currentView === 'cartView' || currentView === 'checkoutView');
+  const socialContext = !isAdmin && isLoggedIn && (currentView === 'socialView' || currentView === 'profileView');
+
   return (
     <header className="navbar topbar">
       <div className="container-xxl topbar-inner d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-3">
@@ -66,13 +75,38 @@ export function Header({
         </button>
 
         <nav className="nav nav-pills main-nav flex-wrap">
-          <button className={`btn nav-btn ${currentView === 'storeView' ? 'active' : ''}`} onClick={() => onSwitchView('storeView')}>Loja</button>
-          {!isAdmin && <button className={`btn nav-btn ${currentView === 'libraryView' ? 'active' : ''}`} onClick={() => onSwitchView('libraryView')}>Biblioteca</button>}
-          {isLoggedIn && <button className={`btn nav-btn ${currentView === 'socialView' ? 'active' : ''}`} onClick={() => onSwitchView('socialView')}>Comunidades</button>}
-          {isLoggedIn && <button className={`btn nav-btn ${currentView === 'profileView' ? 'active' : ''}`} onClick={() => onSwitchView('profileView')}>Perfil</button>}
-          {!isAdmin && <button className={`btn nav-btn ${currentView === 'cartView' ? 'active' : ''}`} onClick={() => onSwitchView('cartView')}>Carrinho</button>}
-          {!isAdmin && <button className={`btn nav-btn ${currentView === 'checkoutView' ? 'active' : ''}`} onClick={() => onSwitchView('checkoutView')}>Checkout</button>}
-          {isAdmin && <button className={`btn nav-btn ${currentView === 'adminView' ? 'active' : ''}`} onClick={() => onSwitchView('adminView')}>Admin</button>}
+          {storeContext && (
+            <span className="nav-cluster">
+              <span className="nav-section-label">Loja</span>
+              <NavButton active={currentView === 'storeView'} onClick={() => onSwitchView('storeView')}>Catalogo</NavButton>
+              {!isAdmin && <NavButton active={currentView === 'libraryView'} count={libraryCount} onClick={() => onSwitchView('libraryView')}>Biblioteca</NavButton>}
+              {!isAdmin && <NavButton active={currentView === 'cartView'} count={cartCount} onClick={() => onSwitchView('cartView')}>Carrinho</NavButton>}
+              {!isAdmin && <NavButton active={currentView === 'checkoutView'} onClick={() => onSwitchView('checkoutView')}>Checkout</NavButton>}
+              {!isAdmin && isLoggedIn && <NavButton active={false} onClick={() => onSwitchView('socialView')}>Comunidades</NavButton>}
+              {!isAdmin && isLoggedIn && <NavButton active={false} onClick={() => onSwitchView('profileView')}>Perfil</NavButton>}
+              {!isAdmin && isLoggedIn && favoriteCount > 0 && <span className="nav-meta-pill align-self-center">Favoritos {favoriteCount}</span>}
+            </span>
+          )}
+
+          {socialContext && (
+            <span className="nav-cluster">
+              <span className="nav-section-label">Social</span>
+              <NavButton active={currentView === 'socialView'} onClick={() => onSwitchView('socialView')}>Comunidades</NavButton>
+              <NavButton active={currentView === 'profileView'} onClick={() => onSwitchView('profileView')}>Perfil</NavButton>
+              {!isAdmin && <NavButton active={false} count={libraryCount} onClick={() => onSwitchView('libraryView')}>Biblioteca</NavButton>}
+              <NavButton active={false} onClick={() => onSwitchView('storeView')}>Loja</NavButton>
+            </span>
+          )}
+
+          {isAdmin && (
+            <span className="nav-cluster">
+              <span className="nav-section-label">Gestao</span>
+              <NavButton active={currentView === 'adminView'} onClick={() => onSwitchView('adminView')}>Admin</NavButton>
+              <NavButton active={currentView === 'storeView'} onClick={() => onSwitchView('storeView')}>Loja</NavButton>
+              {isLoggedIn && <NavButton active={currentView === 'socialView'} onClick={() => onSwitchView('socialView')}>Comunidades</NavButton>}
+              {isLoggedIn && <NavButton active={currentView === 'profileView'} onClick={() => onSwitchView('profileView')}>Perfil</NavButton>}
+            </span>
+          )}
         </nav>
 
         <div className="input-group searchbox flex-grow-1 w-100">
@@ -82,11 +116,11 @@ export function Header({
 
         <div className="header-actions flex-shrink-0">
           {isLoggedIn ? (
-            <button className="btn ghost-btn" onClick={onLogout}>Sair</button>
+            <button className="btn btn-outline-light" onClick={onLogout}>Sair</button>
           ) : (
             <>
-              <button className="btn ghost-btn" onClick={onLogin}>Entrar</button>
-              <button className="btn primary-btn" onClick={onRegister}>Criar conta</button>
+              <button className="btn btn-outline-light" onClick={onLogin}>Entrar</button>
+              <button className="btn btn-primary" onClick={onRegister}>Criar conta</button>
             </>
           )}
         </div>
@@ -106,8 +140,17 @@ export function StatusRow({ label, value }: { label: string; value: string | num
 
 export function FilterButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: ReactNode }) {
   return (
-    <button className={`btn filter-link ${active ? 'active' : ''}`} onClick={onClick}>
+    <button className={`btn ${active ? 'btn-primary' : 'btn-outline-light'} w-100 text-start filter-link`} onClick={onClick}>
       {children}
+    </button>
+  );
+}
+
+function NavButton({ active, count, onClick, children }: { active: boolean; count?: number; onClick: () => void; children: ReactNode }) {
+  return (
+    <button className={`btn nav-btn ${active ? 'active' : ''}`} onClick={onClick}>
+      <span>{children}</span>
+      {!!count && <span className="nav-count">{count}</span>}
     </button>
   );
 }
@@ -116,10 +159,12 @@ export function Modal({ open, onClose, children }: { open: boolean; onClose: () 
   if (!open) return null;
 
   return (
-    <div className="modal show" onMouseDown={event => {
+    <div className="modal fade show d-block app-modal" tabIndex={-1} onMouseDown={event => {
       if (event.target === event.currentTarget) onClose();
     }}>
-      {children}
+      <div className="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-sm-down" onMouseDown={event => event.stopPropagation()}>
+        {children}
+      </div>
     </div>
   );
 }

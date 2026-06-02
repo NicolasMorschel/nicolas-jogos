@@ -45,14 +45,14 @@ export function LibraryView({ games, profileName, isAdmin, isBlocked, gameRestri
             <p>Jogos comprados em ordem alfabética, com visual em cards ou tabela.</p>
           </div>
           <div className="d-flex flex-wrap gap-2">
-            <div className="library-mode-toggle" role="group" aria-label="Modo da biblioteca">
-              <button className={`btn ${mode === 'cards' ? 'active' : ''}`} onClick={() => setMode('cards')}>Cards</button>
-              <button className={`btn ${mode === 'table' ? 'active' : ''}`} onClick={() => setMode('table')}>Tabela</button>
+            <div className="btn-group library-mode-toggle" role="group" aria-label="Modo da biblioteca">
+              <button className={`btn ${mode === 'cards' ? 'btn-primary' : 'btn-outline-light'}`} onClick={() => setMode('cards')}>Cards</button>
+              <button className={`btn ${mode === 'table' ? 'btn-primary' : 'btn-outline-light'}`} onClick={() => setMode('table')}>Tabela</button>
             </div>
-            <button className="btn ghost-btn" onClick={onStore}>Voltar para loja</button>
+            <button className="btn btn-outline-light" onClick={onStore}>Voltar para loja</button>
           </div>
         </div>
-        <div className="page-panel library-panel">
+        <div className="card page-panel library-panel">
           {mode === 'cards' ? <div className="library-grid row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-3">{content}</div> : content}
         </div>
       </div>
@@ -83,9 +83,9 @@ function LibraryGameCard({ game, playStats, isBlocked, restrictions, onPlayGame,
   const { activeBan, warnings, playBlocked, blockedLabel, blockedMessage } = libraryBlockState(game, isBlocked, restrictions);
 
   return (
-    <article className="library-card h-100">
+    <article className="card library-card h-100">
       <div className="library-cover" style={{ '--cover': coverStyle(game.franchise) } as CSSProperties} />
-      <div className="library-body">
+      <div className="card-body library-body">
         <h3>{game.title}</h3>
         <p>{game.description}</p>
         {warnings.length > 0 && !activeBan && <p className="warning-play-note">Aviso ativo neste jogo: se repetir, pode virar ban.</p>}
@@ -100,7 +100,7 @@ function LibraryGameCard({ game, playStats, isBlocked, restrictions, onPlayGame,
           <span>{formatPlayTime(playStats?.minutes_played || 0)}</span>
           <span>{formatShortDate(playStats?.last_played_at)}</span>
         </div>
-        <button className={`btn ${playBlocked ? 'ghost-btn' : 'primary-btn'} full`} onClick={playBlocked ? () => onBlockedPlay(blockedMessage) : () => onPlayGame(game.id)}>
+        <button className={`btn ${playBlocked ? 'btn-outline-light' : 'btn-primary'} w-100`} onClick={playBlocked ? () => onBlockedPlay(blockedMessage) : () => onPlayGame(game.id)}>
           {playBlocked ? blockedLabel : 'Jogar'}
         </button>
       </div>
@@ -145,7 +145,7 @@ function LibraryTable({ games, playStatsByGame, isBlocked, restrictions, onPlayG
                 <td>{formatShortDate(stats?.last_played_at)}</td>
                 <td><span className={`library-status ${playBlocked ? 'blocked' : warnings.length ? 'warning' : 'ready'}`}>{status}</span></td>
                 <td>
-                  <button className={`btn ${playBlocked ? 'ghost-btn' : 'primary-btn'}`} onClick={playBlocked ? () => onBlockedPlay(blockedMessage) : () => onPlayGame(game.id)}>
+                  <button className={`btn ${playBlocked ? 'btn-outline-light' : 'btn-primary'}`} onClick={playBlocked ? () => onBlockedPlay(blockedMessage) : () => onPlayGame(game.id)}>
                     {playBlocked ? blockedLabel : 'Jogar'}
                   </button>
                 </td>
@@ -161,7 +161,7 @@ function LibraryTable({ games, playStatsByGame, isBlocked, restrictions, onPlayG
 function EmptyLibraryMessage({ children }: { children: ReactNode }) {
   return (
     <div className="col-12">
-      <div className="page-panel">{children}</div>
+      <div className="card page-panel">{children}</div>
     </div>
   );
 }

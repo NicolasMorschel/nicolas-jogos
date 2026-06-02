@@ -80,7 +80,7 @@ export function UserVoiceDock({
       </div>
 
       {activeVoiceChannel && (
-        <button className="btn btn-sm ghost-btn social-user-leave" type="button" onClick={onLeaveVoice}>
+        <button className="btn btn-sm btn-outline-light social-user-leave" type="button" onClick={onLeaveVoice}>
           Sair
         </button>
       )}
